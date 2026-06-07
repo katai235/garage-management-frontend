@@ -95,6 +95,8 @@ export const Shadow = {
     shadowOpacity: 0.06,
     shadowRadius: 4,
     elevation: 2,
+    // Web fallback
+    boxShadow: '0 1px 4px rgba(26,86,219,0.10)',
   },
   md: {
     shadowColor: '#1A56DB',
@@ -102,6 +104,7 @@ export const Shadow = {
     shadowOpacity: 0.10,
     shadowRadius: 10,
     elevation: 4,
+    boxShadow: '0 3px 10px rgba(26,86,219,0.12)',
   },
   lg: {
     shadowColor: '#1A56DB',
@@ -109,6 +112,7 @@ export const Shadow = {
     shadowOpacity: 0.14,
     shadowRadius: 20,
     elevation: 8,
+    boxShadow: '0 6px 20px rgba(26,86,219,0.16)',
   },
 };
 

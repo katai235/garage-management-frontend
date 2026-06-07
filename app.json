@@ -36,7 +36,13 @@
       ]
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "name": "Sam Saen Thai KT Lo,. Co",
+      "shortName": "GMS",
+      "description": "Garage Management System by Sam Saen Thai KT Lo,. Co",
+      "themeColor": "#2563EB",
+      "backgroundColor": "#EEF2FF"
     },
     "plugins": [
       "expo-secure-store",

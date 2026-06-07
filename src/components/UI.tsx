@@ -54,7 +54,7 @@ export const Button: React.FC<ButtonProps> = ({ title, onPress, variant='primary
     <TouchableOpacity onPress={onPress} disabled={isDisabled} activeOpacity={0.8}
       style={[styles.btn, vMap[variant].container, sMap[size].container, isDisabled&&{opacity:0.5}, style]}>
       {loading ? <ActivityIndicator size="small" color={['primary','danger','success'].includes(variant)?'#fff':Colors.primary} />
-        : <View style={styles.btnContent}>{icon&&<Text style={[styles.btnIcon,vMap[variant].text]}>{icon}</Text>}<Text style={[styles.btnText,vMap[variant].text,sMap[size].text,{fontWeight:'700'}]}>{title}</Text></View>}
+        : <View style={styles.btnContent}>{!!icon && <Text style={[styles.btnIcon,vMap[variant].text]}>{icon}</Text>}<Text style={[styles.btnText,vMap[variant].text,sMap[size].text,{fontWeight:'700'}]}>{title}</Text></View>}
     </TouchableOpacity>
   );
 };
@@ -62,12 +62,12 @@ export const Button: React.FC<ButtonProps> = ({ title, onPress, variant='primary
 interface InputProps extends TextInputProps { label?: string; error?: string; icon?: string; containerStyle?: ViewStyle; }
 export const Input: React.FC<InputProps> = ({ label, error, icon, containerStyle, ...props }) => (
   <View style={[styles.inputContainer, containerStyle]}>
-    {label && <Text style={styles.inputLabel}>{label}</Text>}
+    {!!label && <Text style={styles.inputLabel}>{label}</Text>}
     <View style={[styles.inputWrapper, error?styles.inputError:null]}>
-      {icon && <Text style={styles.inputIcon}>{icon}</Text>}
+      {!!icon && <Text style={styles.inputIcon}>{icon}</Text>}
       <TextInput style={[styles.input, icon?{paddingLeft:4}:null]} placeholderTextColor={Colors.textTertiary} {...props} />
     </View>
-    {error && <Text style={styles.errorText}>{error}</Text>}
+    {!!error && <Text style={styles.errorText}>{error}</Text>}
   </View>
 );
 
@@ -80,8 +80,8 @@ export const Card: React.FC<CardProps> = ({ children, style, onPress }) => {
 interface SectionHeaderProps { title: string; subtitle?: string; action?: { label: string; onPress: () => void }; }
 export const SectionHeader: React.FC<SectionHeaderProps> = ({ title, subtitle, action }) => (
   <View style={styles.sectionHeader}>
-    <View><Text style={styles.sectionTitle}>{title}</Text>{subtitle&&<Text style={styles.sectionSubtitle}>{subtitle}</Text>}</View>
-    {action&&<TouchableOpacity onPress={action.onPress} style={styles.sectionActionBtn}><Text style={styles.sectionAction}>{action.label}</Text></TouchableOpacity>}
+    <View><Text style={styles.sectionTitle}>{title}</Text>{!!subtitle && <Text style={styles.sectionSubtitle}>{subtitle}</Text>}</View>
+    {!!action && <TouchableOpacity onPress={action.onPress} style={styles.sectionActionBtn}><Text style={styles.sectionAction}>{action.label}</Text></TouchableOpacity>}
   </View>
 );
 
@@ -90,8 +90,8 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, subtitle, a
   <View style={styles.emptyState}>
     <View style={styles.emptyIconBox}><Text style={styles.emptyIcon}>{icon}</Text></View>
     <Text style={styles.emptyTitle}>{title}</Text>
-    {subtitle&&<Text style={styles.emptySubtitle}>{subtitle}</Text>}
-    {actionLabel&&onAction&&<Button title={actionLabel} onPress={onAction} style={{marginTop:Spacing.base}} />}
+    {!!subtitle && <Text style={styles.emptySubtitle}>{subtitle}</Text>}
+    {!!(actionLabel && onAction) && <Button title={actionLabel} onPress={onAction} style={{marginTop:Spacing.base}} />}
   </View>
 );
 
@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize:Typography.lg, fontWeight:'800', color:Colors.textPrimary, marginBottom:6, textAlign:'center' },
   emptySubtitle: { fontSize:Typography.base, color:Colors.textSecondary, textAlign:'center', lineHeight:22 },
   loading: { flex:1, alignItems:'center', justifyContent:'center', backgroundColor:Colors.background },
-  loadingSpinner: { width:72, height:72, borderRadius:36, backgroundColor:Colors.surface, alignItems:'center', justifyContent:'center', marginBottom:Spacing.base, ...Shadow.md },
+  loadingSpinner: { width:72, height:72, borderRadius:36, backgroundColor:Colors.surface, alignItems:'center', justifyContent:'center', marginBottom:Spacing.base },
   loadingText: { fontSize:Typography.base, color:Colors.textSecondary, fontWeight:'600' },
   roleBadge: { paddingHorizontal:10, paddingVertical:4, borderRadius:BorderRadius.sm },
   roleBadgeText: { fontSize:10, fontWeight:'800', letterSpacing:0.8 },

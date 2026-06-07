@@ -16,13 +16,13 @@ export default function LoginScreen({ navigation }: any) {
   const [passwordError, setPasswordError] = useState('');
   const { login, isLoading, error, clearError } = useAuthStore();
 
-  const fadeAnim = new Animated.Value(0);
-  const slideAnim = new Animated.Value(40);
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+  const slideAnim = React.useRef(new Animated.Value(40)).current;
 
   useEffect(() => {
     Animated.parallel([
-      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: true }),
-      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: true }),
+      Animated.timing(fadeAnim, { toValue: 1, duration: 600, useNativeDriver: false }),
+      Animated.timing(slideAnim, { toValue: 0, duration: 600, useNativeDriver: false }),
     ]).start();
   }, []);
 

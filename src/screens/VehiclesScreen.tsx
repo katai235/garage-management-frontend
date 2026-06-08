@@ -204,6 +204,9 @@ export default function VehiclesScreen({ navigation }: any) {
         </View>
         {canCreate && (
           <View style={styles.headerBtns}>
+            <TouchableOpacity style={styles.sellBtn} onPress={() => navigation.navigate('SellParts')}>
+              <Text style={styles.sellBtnText}>🛒 Sell Parts</Text>
+            </TouchableOpacity>
             <TouchableOpacity style={styles.outlineBtn} onPress={() => navigation.navigate('AddVehicle')}>
               <Text style={styles.outlineBtnText}>🚗 Vehicle</Text>
             </TouchableOpacity>
@@ -262,6 +265,8 @@ const styles = StyleSheet.create({
   title: { fontSize: Typography['2xl'], fontWeight: '800', color: Colors.textPrimary },
   subtitle: { fontSize: Typography.sm, color: Colors.textSecondary },
   headerBtns: { flexDirection: 'row', gap: 6 },
+  sellBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: BorderRadius.md, backgroundColor: Colors.success },
+  sellBtnText: { fontSize: 12, fontWeight: '600', color: '#fff' },
   outlineBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: BorderRadius.md, borderWidth: 1.5, borderColor: Colors.primary },
   outlineBtnText: { fontSize: 12, fontWeight: '600', color: Colors.primary },
   filledBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: BorderRadius.md, backgroundColor: Colors.primary },

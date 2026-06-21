@@ -62,7 +62,7 @@ export default function AddCustomerScreen({ navigation, route }: any) {
           notes: form.notes,
         });
         Alert.alert('Success', 'Customer added successfully!', [
-          { text: 'View Customer', onPress: () => navigation.replace('CustomerDetail', { customerId: result.data.id }) },
+          { text: 'View Customer', onPress: () => navigation.replace('EditCustomer', { customer: result.data }) },
           { text: 'Done', onPress: () => navigation.goBack() }
         ]);
       }

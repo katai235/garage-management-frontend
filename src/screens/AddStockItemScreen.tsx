@@ -113,10 +113,14 @@ export default function AddStockItemScreen({ navigation, route }: any) {
     if (!validate()) return;
     setLoading(true);
     try {
-      const hasNewImage = imageUri && imageUri.startsWith('file');
+      // A "new" image is one picked from camera/library on this device —
+      // these come back as file:// URIs on iOS, but Android gallery pickers
+      // can also return content:// URIs. Anything that isn't an http(s) URL
+      // (i.e. not an image already hosted on the server from a previous save)
+      // counts as new and needs to be uploaded.
+      const hasNewImage = !!imageUri && !imageUri.startsWith('http');
 
       if (hasNewImage) {
-        // Use fetch directly for multipart — axios has issues with FormData on React Native
         const formData = new FormData();
         formData.append('name',         form.name);
         formData.append('sku',          form.sku.toUpperCase());
@@ -134,27 +138,14 @@ export default function AddStockItemScreen({ navigation, route }: any) {
         const mimeType  = extension === 'png' ? 'image/png' : 'image/jpeg';
         formData.append('image', { uri: imageUri, name: filename, type: mimeType } as any);
 
-        // Get token from storage for auth header
-        const SecureStore = await import('expo-secure-store');
-        const token = await SecureStore.getItemAsync('accessToken');
-
-        const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
-        const url = isEditing
-          ? `${API_BASE}/stock/${existingItem.id}`
-          : `${API_BASE}/stock`;
-
-        const response = await fetch(url, {
-          method: isEditing ? 'PUT' : 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            // Do NOT set Content-Type — fetch sets it with boundary automatically
-          },
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const err = await response.json().catch(() => ({}));
-          throw new Error(err.error || 'Upload failed');
+        // Use the shared axios client (stockApi) instead of a manual fetch().
+        // It already handles the base URL, the auth header (via the request
+        // interceptor in api.ts), and token refresh consistently with every
+        // other screen — no need to re-read SecureStore or rebuild the URL here.
+        if (isEditing) {
+          await stockApi.updateWithImage(existingItem.id, formData);
+        } else {
+          await stockApi.createWithImage(formData);
         }
       } else {
         // No new image — use regular JSON
@@ -184,7 +175,10 @@ export default function AddStockItemScreen({ navigation, route }: any) {
         [{ text: 'OK', onPress: () => navigation.goBack() }]
       );
     } catch (error: any) {
-      const msg = error.response?.data?.error || (isEditing ? 'Failed to update item' : 'Failed to add item');
+      console.error('AddStockItemScreen submit error:', error);
+      const msg = error?.response?.data?.error
+        || error?.message
+        || (isEditing ? 'Failed to update item' : 'Failed to add item');
       Alert.alert('Error', msg);
     } finally {
       setLoading(false);

@@ -86,7 +86,7 @@ export default function CustomersScreen({ navigation }: any) {
   const renderCustomer = ({ item }: { item: Customer }) => (
     <TouchableOpacity
       style={[styles.card, Shadow.sm]}
-      onPress={() => navigation.navigate('CustomerDetail', { customerId: item.id })}
+      onPress={() => navigation.navigate('EditCustomer', { customer: item })}
       activeOpacity={0.9}
     >
       <View style={styles.cardTop}>

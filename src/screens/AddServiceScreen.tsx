@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { vehicleApi, customerApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const SERVICE_TYPES = ['Oil Change & Filter','Brake Replacement','Tire Rotation','Full Inspection','Battery Replacement','Air Conditioning Service','Transmission Service','Engine Tune-Up','Other'];
 
@@ -14,6 +15,7 @@ export default function AddServiceScreen({ navigation, route }: any) {
   const [customerSearch, setCustomerSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useLanguageStore();
   const [form, setForm] = useState({
     customerId: '', customerName: '', vehicleId: '', vehicleDisplay: '',
     serviceName: '', diagnosis: '', internalNotes: '', laborCost: '', partsCost: '',
@@ -71,29 +73,29 @@ export default function AddServiceScreen({ navigation, route }: any) {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ Back</Text></TouchableOpacity>
-          <Text style={styles.title}>New Service</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ {t('back')}</Text></TouchableOpacity>
+          <Text style={styles.title}>{t('NewService')}</Text>
           <View style={{ width: 50 }} />
         </View>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
           {/* Customer */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Customer *</Text>
+            <Text style={styles.sectionTitle}>{t('customers')} *</Text>
             <TouchableOpacity style={[styles.selectBtn, errors.customer ? { borderColor: Colors.danger } : null]} onPress={() => setShowCustomerSearch(!showCustomerSearch)}>
               <Text style={form.customerName ? styles.selectText : styles.placeholderText}>{form.customerName || 'Tap to search customer...'}</Text>
             </TouchableOpacity>
             {errors.customer ? <Text style={styles.errorText}>{errors.customer}</Text> : null}
             {showCustomerSearch && (
               <View style={styles.dropdown}>
-                <TextInput style={styles.dropdownInput} placeholder="Type name or phone..." placeholderTextColor={Colors.textTertiary} value={customerSearch} onChangeText={(t) => { setCustomerSearch(t); searchCustomers(t); }} autoFocus />
+                <TextInput style={styles.dropdownInput} placeholder={t('Typenameorphone')} placeholderTextColor={Colors.textTertiary} value={customerSearch} onChangeText={(t) => { setCustomerSearch(t); searchCustomers(t); }} autoFocus />
                 {customers.map(c => (
                   <TouchableOpacity key={c.id} style={styles.dropdownItem} onPress={() => selectCustomer(c)}>
                     <Text style={styles.dropdownItemName}>{c.full_name || c.fullName}</Text>
                     <Text style={styles.dropdownItemSub}>{c.phone}</Text>
                   </TouchableOpacity>
                 ))}
-                {customers.length === 0 && customerSearch.length > 1 && <Text style={styles.noResult}>No customers found</Text>}
+                {customers.length === 0 && customerSearch.length > 1 && <Text style={styles.noResult}>{t('Nocustomersfound')}</Text>}
               </View>
             )}
           </View>
@@ -101,7 +103,7 @@ export default function AddServiceScreen({ navigation, route }: any) {
           {/* Vehicle */}
           {form.customerId ? (
             <View style={[styles.card, Shadow.sm]}>
-              <Text style={styles.sectionTitle}>Vehicle *</Text>
+              <Text style={styles.sectionTitle}>{t('vehicle')} *</Text>
               {vehicles.length === 0 ? (
                 <Text style={styles.noResult}>No vehicles found for this customer</Text>
               ) : vehicles.map(v => (
@@ -116,7 +118,7 @@ export default function AddServiceScreen({ navigation, route }: any) {
 
           {/* Service Type */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Service Type *</Text>
+            <Text style={styles.sectionTitle}>{t('ServiceType')} *</Text>
             <View style={styles.chipGrid}>
               {SERVICE_TYPES.map(s => (
                 <TouchableOpacity key={s} style={[styles.chip, form.serviceName === s && styles.chipActive]} onPress={() => setForm(prev => ({ ...prev, serviceName: s }))}>
@@ -129,20 +131,20 @@ export default function AddServiceScreen({ navigation, route }: any) {
 
           {/* Cost & Notes */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Cost & Notes</Text>
+            <Text style={styles.sectionTitle}>{t('Cost')}</Text>
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Input label="Labor Cost (₭)" placeholder="0.00" value={form.laborCost} onChangeText={t => setForm(p => ({ ...p, laborCost: t }))} keyboardType="decimal-pad" />
+                <Input label={t('Laborcost')} placeholder="0.00" value={form.laborCost} onChangeText={t => setForm(p => ({ ...p, laborCost: t }))} keyboardType="decimal-pad" />
               </View>
               <View style={{ flex: 1 }}>
-                <Input label="Parts Cost (₭)" placeholder="0.00" value={form.partsCost} onChangeText={t => setForm(p => ({ ...p, partsCost: t }))} keyboardType="decimal-pad" />
+                <Input label={t('Partcost')} placeholder="0.00" value={form.partsCost} onChangeText={t => setForm(p => ({ ...p, partsCost: t }))} keyboardType="decimal-pad" />
               </View>
             </View>
-            <Input label="Diagnosis" placeholder="Describe the issue..." value={form.diagnosis} onChangeText={t => setForm(p => ({ ...p, diagnosis: t }))} multiline numberOfLines={3} />
-            <Input label="Internal Notes" placeholder="Notes for the team..." value={form.internalNotes} onChangeText={t => setForm(p => ({ ...p, internalNotes: t }))} multiline numberOfLines={2} />
+            <Input label={t('Diagnosis')} placeholder={t('Describetheissue')} value={form.diagnosis} onChangeText={t => setForm(p => ({ ...p, diagnosis: t }))} multiline numberOfLines={3} />
+            <Input label={t('InternalNotes')} placeholder={t('Notesfortheteam')} value={form.internalNotes} onChangeText={t => setForm(p => ({ ...p, internalNotes: t }))} multiline numberOfLines={2} />
           </View>
 
-          <Button title="Create Service Record" onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
+          <Button title={t('CreateServiceRecord')} onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { authApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore'; 
 
 const ROLES = ['staff', 'technician', 'manager'];
 
@@ -16,6 +17,7 @@ export default function RegisterScreen({ navigation }: any) {
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const { t } = useLanguageStore();
 
   const set = (key: string) => (val: string) =>
     setForm(prev => ({ ...prev, [key]: val }));
@@ -62,21 +64,21 @@ export default function RegisterScreen({ navigation }: any) {
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           {/* Back Button */}
           <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-            <Text style={styles.backText}>‹ Back to Login</Text>
+            <Text style={styles.backText}>{t('backToLogin')}</Text>
           </TouchableOpacity>
 
           <View style={styles.logoRow}>
             <View style={styles.logoBox}><Text style={styles.logoEmoji}>🔧</Text></View>
             <View>
-              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.title}>{t('createAccount')}</Text>
               <Text style={styles.subtitle}>Sam Saen Thai KT Lo,. Co Garage Management</Text>
             </View>
           </View>
 
           <View style={[styles.card, Shadow.lg]}>
             <Input
-              label="Full Name"
-              placeholder="Enter your name"
+              label={t('fullName')}
+              placeholder={t('Enteryourname')}
               value={form.fullName}
               onChangeText={set('fullName')}
               error={errors.fullName}
@@ -84,8 +86,8 @@ export default function RegisterScreen({ navigation }: any) {
               autoCapitalize="words"
             />
             <Input
-              label="Username"
-              placeholder="Enter your username"
+              label={t('username')}
+              placeholder={t('Enteryourusername')}
               value={form.username}
               onChangeText={set('username')}
               error={errors.username}
@@ -93,8 +95,8 @@ export default function RegisterScreen({ navigation }: any) {
               autoCapitalize="none"
             />
             <Input
-              label="Email"
-              placeholder="Enter your Email"
+              label={t('email')}
+              placeholder={t('EnteryourEmail')}
               value={form.email}
               onChangeText={set('email')}
               error={errors.email}
@@ -105,7 +107,7 @@ export default function RegisterScreen({ navigation }: any) {
 
             {/* Role Selector */}
             <View style={styles.roleSection}>
-              <Text style={styles.roleLabel}>Role</Text>
+              <Text style={styles.roleLabel}>{t('role')}</Text>
               <View style={styles.roleRow}>
                 {ROLES.map((role) => (
                   <TouchableOpacity
@@ -122,8 +124,8 @@ export default function RegisterScreen({ navigation }: any) {
             </View>
 
             <Input
-              label="Password"
-              placeholder="At least 6 characters"
+              label={t('password')}
+              placeholder={t('Atleast6characters')}
               value={form.password}
               onChangeText={set('password')}
               error={errors.password}
@@ -131,8 +133,8 @@ export default function RegisterScreen({ navigation }: any) {
               secureTextEntry
             />
             <Input
-              label="Confirm Password"
-              placeholder="Re-enter your password"
+              label={t('ConfirmPasswordlb')}
+              placeholder={t('Reenteryourpassword')}
               value={form.confirmPassword}
               onChangeText={set('confirmPassword')}
               error={errors.confirmPassword}
@@ -141,7 +143,7 @@ export default function RegisterScreen({ navigation }: any) {
             />
 
             <Button
-              title="Create Account"
+              title={t('createAccount')}
               onPress={handleRegister}
               loading={loading}
               style={{ marginTop: Spacing.sm }}

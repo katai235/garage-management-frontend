@@ -1,3 +1,5 @@
+import { useLanguageStore } from '../store/languageStore';
+import LanguageToggle from '../components/LanguageToggle';
 import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView,
@@ -15,6 +17,7 @@ export default function LoginScreen({ navigation }: any) {
   const [usernameError, setUsernameError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const { login, isLoading, error, clearError } = useAuthStore();
+  const { t } = useLanguageStore();
 
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
   const slideAnim = React.useRef(new Animated.Value(40)).current;
@@ -28,9 +31,9 @@ export default function LoginScreen({ navigation }: any) {
 
   const validate = () => {
     let valid = true;
-    if (!username.trim()) { setUsernameError('Username is required'); valid = false; } else setUsernameError('');
-    if (!password) { setPasswordError('Password is required'); valid = false; }
-    else if (password.length < 6) { setPasswordError('At least 6 characters'); valid = false; }
+    if (!username.trim()) { setUsernameError(t('username') + ' ' + t('required')); valid = false; } else setUsernameError('');
+    if (!password) { setPasswordError(t('password') + ' ' + t('required')); valid = false; }
+    else if (password.length < 6) { setPasswordError('≥ 6 chars'); valid = false; }
     else setPasswordError('');
     return valid;
   };
@@ -52,6 +55,9 @@ export default function LoginScreen({ navigation }: any) {
         <View style={styles.circle1} />
         <View style={styles.circle2} />
         <View style={styles.circle3} />
+        <View style={styles.langToggleWrap}>
+          <LanguageToggle />
+        </View>
         <View style={styles.logoWrap}>
           <Text style={styles.logoIcon}>🔧</Text>
         </View>
@@ -64,8 +70,8 @@ export default function LoginScreen({ navigation }: any) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <Animated.View style={[styles.card, Shadow.lg, { opacity: fadeAnim, transform: [{ translateY: slideAnim }] }]}>
-            <Text style={styles.cardTitle}>Welcome Back</Text>
-            <Text style={styles.cardSub}>Sign in to your account</Text>
+            <Text style={styles.cardTitle}>{t('loginTitle')}</Text>
+            <Text style={styles.cardSub}>{t('loginSubtitle')}</Text>
 
             {error && (
               <View style={styles.errorBanner}>
@@ -75,8 +81,8 @@ export default function LoginScreen({ navigation }: any) {
             )}
 
             <Input
-              label="Username"
-              placeholder="Enter your username"
+              label={t('username')}
+              placeholder={t('username')}
               value={username}
               onChangeText={t => { setUsername(t); clearError(); }}
               autoCapitalize="none"
@@ -88,8 +94,8 @@ export default function LoginScreen({ navigation }: any) {
 
             <View>
               <Input
-                label="Password"
-                placeholder="Enter your password"
+                label={t('password')}
+                placeholder={t('password')}
                 value={password}
                 onChangeText={t => { setPassword(t); clearError(); }}
                 secureTextEntry={!showPassword}
@@ -103,15 +109,15 @@ export default function LoginScreen({ navigation }: any) {
               </TouchableOpacity>
             </View>
 
-            <Button title="Sign In" onPress={handleLogin} loading={isLoading} style={styles.loginBtn} />
+            <Button title={t('loginBtn')} onPress={handleLogin} loading={isLoading} style={styles.loginBtn} />
 
             <TouchableOpacity style={styles.forgotRow} onPress={() => navigation.navigate('ForgotPassword')}>
-              <Text style={styles.forgotText}>Forgot your password?</Text>
+              <Text style={styles.forgotText}>{t('forgotPassword')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.registerRow} onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.registerText}>Don't have an account? </Text>
-              <Text style={styles.registerLink}>Register</Text>
+              <Text style={styles.registerText}>{t('dontHaveAccount')}</Text>
+              <Text style={styles.registerLink}>{t('register')}</Text>
             </TouchableOpacity>
           </Animated.View>
 
@@ -128,6 +134,9 @@ const styles = StyleSheet.create({
   topBand: {
     paddingTop: 60, paddingBottom: 40, alignItems: 'center',
     overflow: 'hidden', position: 'relative',
+  },
+  langToggleWrap: {
+    position: 'absolute', top: 56, right: 16, zIndex: 10,
   },
   circle1: {
     position: 'absolute', width: 200, height: 200, borderRadius: 100,

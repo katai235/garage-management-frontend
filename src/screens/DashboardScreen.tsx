@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/authStore';
 import { usePermissions } from '../hooks/usePermissions';
 import { StatusBadge, Card, LoadingState } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const MONTHS_S = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -38,6 +39,7 @@ export default function DashboardScreen({ navigation }: any) {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { user } = useAuthStore();
+  const { t } = useLanguageStore();
 
   const fetchData = async () => {
     try { const r = await dashboardApi.getStats(); setData(r.data); }
@@ -52,16 +54,16 @@ export default function DashboardScreen({ navigation }: any) {
   const greeting = getGreeting();
   const stats = data?.stats || {};
   const STAT_CARDS = [
-    { label: 'Active Services', value: stats.activeServices||0, icon: '🚗', color: Colors.primary, bg: Colors.primaryAlpha },
-    { label: "Today's Appts",  value: stats.todayAppointments||0, icon: '📅', color: Colors.info, bg: Colors.infoLight },
-    { label: 'Customers',      value: stats.activeCustomers||0, icon: '👥', color: Colors.success, bg: Colors.successLight },
-    { label: 'Revenue',        value: fmtKip(stats.monthlyRevenue||0), icon: '₭', color: Colors.accent, bg: Colors.accentLight },
+    { label: t('activeServices'), value: stats.activeServices||0, icon: '🚗', color: Colors.primary, bg: Colors.primaryAlpha },
+    { label: t('todayAppointments'),  value: stats.todayAppointments||0, icon: '📅', color: Colors.info, bg: Colors.infoLight },
+    { label: t('totalCustomers'),      value: stats.activeCustomers||0, icon: '👥', color: Colors.success, bg: Colors.successLight },
+    { label: t('revenue'),        value: fmtKip(stats.monthlyRevenue||0), icon: '₭', color: Colors.accent, bg: Colors.accentLight },
   ];
   const ALL_QUICK_ACTIONS = [
-    { icon: '🚗', label: 'New\nService',    screen: 'AddService',    color: Colors.primary,  perm: 'services.create' },
-    { icon: '👤', label: 'Add\nCustomer',   screen: 'AddCustomer',   color: Colors.success,  perm: 'customers.create' },
-    { icon: '📅', label: 'Book\nAppt',      screen: 'AddAppointment',color: Colors.info,     perm: 'appointments.create' },
-    { icon: '🧾', label: 'New\nInvoice',    screen: 'AddInvoice',    color: Colors.accent,   perm: 'invoices.create' },
+    { icon: '🚗', label: t('addService'),    screen: 'AddService',    color: Colors.primary,  perm: 'services.create' },
+    { icon: '👤', label: t('addCustomer'),   screen: 'AddCustomer',   color: Colors.success,  perm: 'customers.create' },
+    { icon: '📅', label: t('newAppointment'),      screen: 'AddAppointment',color: Colors.info,     perm: 'appointments.create' },
+    { icon: '🧾', label: t('newInvoice'),    screen: 'AddInvoice',    color: Colors.accent,   perm: 'invoices.create' },
   ];
   const QUICK_ACTIONS = ALL_QUICK_ACTIONS.filter(a => can(a.perm as any));
 
@@ -99,7 +101,7 @@ export default function DashboardScreen({ navigation }: any) {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>{t('dashboard')}</Text>
           <View style={styles.quickGrid}>
             {QUICK_ACTIONS.map(a => (
               <TouchableOpacity key={a.screen} style={[styles.quickCard,Shadow.sm]} onPress={()=>navigation.navigate(a.screen)} activeOpacity={0.85}>
@@ -113,11 +115,11 @@ export default function DashboardScreen({ navigation }: any) {
         {/* Recent Services */}
         <View style={styles.section}>
           <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>Recent Services</Text>
+            <Text style={styles.sectionTitle}>{t('recentActivity')}</Text>
             <TouchableOpacity style={styles.seeAllBtn} onPress={()=>navigation.navigate('Vehicles')}><Text style={styles.seeAll}>See All →</Text></TouchableOpacity>
           </View>
           {!data?.recentServices?.length ? (
-            <View style={[styles.emptyBox,Shadow.sm]}><Text style={styles.emptyTxt}>No recent services</Text></View>
+            <View style={[styles.emptyBox,Shadow.sm]}><Text style={styles.emptyTxt}>{t('Norecentservices')}</Text></View>
           ) : data.recentServices.map((s:any) => (
             <View key={s.id} style={[styles.svcCard,Shadow.sm]}>
               <View style={styles.svcIconBox}><Text style={{fontSize:20}}>🚗</Text></View>
@@ -135,11 +137,11 @@ export default function DashboardScreen({ navigation }: any) {
         {/* Upcoming */}
         <View style={[styles.section,{paddingBottom:100}]}>
           <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>Upcoming</Text>
+            <Text style={styles.sectionTitle}>{t('Upcoming')}</Text>
             <TouchableOpacity style={styles.seeAllBtn} onPress={()=>navigation.navigate('Appointments')}><Text style={styles.seeAll}>See All →</Text></TouchableOpacity>
           </View>
           {!data?.upcomingAppointments?.length ? (
-            <View style={[styles.emptyBox,Shadow.sm]}><Text style={styles.emptyTxt}>No upcoming appointments</Text></View>
+            <View style={[styles.emptyBox,Shadow.sm]}><Text style={styles.emptyTxt}>{t('Noupcomingappointments')}</Text></View>
           ) : data.upcomingAppointments.map((a:any) => (
             <View key={a.id} style={[styles.apptCard,Shadow.sm]}>
               <View style={styles.apptTime}>

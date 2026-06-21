@@ -8,6 +8,7 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const fmtKip = (v: any) => {
   const n = parseFloat(String(v || 0));
@@ -44,6 +45,7 @@ export default function StockItemViewScreen({ navigation, route }: any) {
   const item = route?.params?.item;
   const billRef = useRef<any>(null);
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguageStore();
 
   if (!item) {
     return (
@@ -115,9 +117,9 @@ export default function StockItemViewScreen({ navigation, route }: any) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>‹ Back</Text>
+          <Text style={styles.backBtnText}>‹ {t('back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Stock Card</Text>
+        <Text style={styles.topTitle}>{t('stockCard')}</Text>
         <View style={styles.topActions}>
           <TouchableOpacity style={styles.iconBtn} onPress={handleShare} disabled={saving}>
             <Text style={styles.iconBtnText}>📤</Text>
@@ -125,7 +127,7 @@ export default function StockItemViewScreen({ navigation, route }: any) {
           <TouchableOpacity style={[styles.iconBtn, styles.saveBtn]} onPress={handleSave} disabled={saving}>
             {saving
               ? <ActivityIndicator size="small" color="#fff" />
-              : <Text style={[styles.iconBtnText, { color: '#fff' }]}>💾 Save</Text>
+              : <Text style={[styles.iconBtnText, { color: '#fff' }]}>💾 {t('save')}</Text>
             }
           </TouchableOpacity>
         </View>
@@ -176,7 +178,7 @@ export default function StockItemViewScreen({ navigation, route }: any) {
 
             {/* Stock levels */}
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>STOCK LEVELS</Text>
+              <Text style={styles.sectionLabel}>{t('stockLevels')}</Text>
               <View style={styles.levelRow}>
                 <View style={[styles.levelCard, { backgroundColor: quantity === 0 ? '#fee2e2' : quantity <= reorderLevel ? '#fef3c7' : '#d1fae5' }]}>
                   <Text style={styles.levelNum}>{quantity}</Text>
@@ -262,12 +264,12 @@ export default function StockItemViewScreen({ navigation, route }: any) {
         {/* Bottom action buttons */}
         <View style={styles.bottomActions}>
           <TouchableOpacity style={styles.btnShare} onPress={handleShare} disabled={saving}>
-            <Text style={styles.btnShareText}>📤  Share Card</Text>
+            <Text style={styles.btnShareText}>📤 {t('ShareCard')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.btnSave} onPress={handleSave} disabled={saving}>
             {saving
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.btnSaveText}>💾  Save to Photos</Text>
+              : <Text style={styles.btnSaveText}>💾 {t('saveToPhotos')}</Text>
             }
           </TouchableOpacity>
         </View>

@@ -6,6 +6,7 @@ import { appointmentApi } from '../services/api';
 import { EmptyState, LoadingState } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
 import { ActivityLog } from '../types';
+import { useLanguageStore } from '../store/languageStore';
 
 const ACTIVITY_TYPES = ['all', 'repair', 'stock', 'customer', 'invoice', 'appointment'];
 
@@ -37,6 +38,17 @@ export default function ActivityHistoryScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [activeType, setActiveType] = useState('all');
+  const { t } = useLanguageStore();
+
+  // Translated labels for the filter chips, built here so they have access to t()
+  const FILTER_LABELS: Record<string, string> = {
+    all: t('filterAll'),
+    repair: t('filterRepair'),
+    stock: t('filterStock'),
+    customer: t('filterCustomer'),
+    invoice: t('filterInvoice'),
+    appointment: t('filterAppointment'),
+  };
 
   const fetchLogs = async () => {
     try {
@@ -102,16 +114,16 @@ export default function ActivityHistoryScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Activity History</Text>
-        <Text style={styles.subtitle}>Track all system activities and changes</Text>
+        <Text style={styles.title}>{t('activityHistory')}</Text>
+        <Text style={styles.subtitle}>{t('activityHistorySubtitle')}</Text>
       </View>
 
       <View style={styles.summaryRow}>
         {[
-          { label: 'Total', value: summary.total || 0, color: Colors.textPrimary },
-          { label: 'Repairs', value: summary.repairs || 0, color: Colors.info },
-          { label: 'Stock', value: summary.stock_changes || 0, color: '#8B5CF6' },
-          { label: 'Customers', value: summary.customer_actions || 0, color: Colors.success },
+          { label: t('total'), value: summary.total || 0, color: Colors.textPrimary },
+          { label: t('repairs'), value: summary.repairs || 0, color: Colors.info },
+          { label: t('stockChanges'), value: summary.stock_changes || 0, color: '#8B5CF6' },
+          { label: t('customers'), value: summary.customer_actions || 0, color: Colors.success },
         ].map((s) => (
           <View key={s.label} style={[styles.statCard, Shadow.sm]}>
             <Text style={[styles.statValue, { color: s.color }]}>{s.value}</Text>
@@ -127,14 +139,14 @@ export default function ActivityHistoryScreen() {
         keyExtractor={(i) => i}
         contentContainerStyle={styles.filterRow}
         style={{ flexGrow: 0, marginBottom: Spacing.md }}
-        renderItem={({ item: t }) => (
+        renderItem={({ item: type }) => (
           <TouchableOpacity
-            style={[styles.filterTab, activeType === t && styles.filterTabActive]}
-            onPress={() => setActiveType(t)}
+            style={[styles.filterTab, activeType === type && styles.filterTabActive]}
+            onPress={() => setActiveType(type)}
           >
-            {t !== 'all' && <Text style={styles.filterIcon}>{ACTIVITY_CONFIG[t]?.icon}</Text>}
-            <Text style={[styles.filterText, activeType === t && styles.filterTextActive]}>
-              {t.charAt(0).toUpperCase() + t.slice(1)}
+            {type !== 'all' && <Text style={styles.filterIcon}>{ACTIVITY_CONFIG[type]?.icon}</Text>}
+            <Text style={[styles.filterText, activeType === type && styles.filterTextActive]}>
+              {FILTER_LABELS[type] || type}
             </Text>
           </TouchableOpacity>
         )}
@@ -150,7 +162,7 @@ export default function ActivityHistoryScreen() {
           <RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchLogs(); }} tintColor={Colors.primary} />
         }
         ListEmptyComponent={
-          <EmptyState icon="📋" title="No activity logs" subtitle="Activity will appear here as actions are performed" />
+          <EmptyState icon="📋" title={t('noActivityLogs')} subtitle={t('activityWillAppear')} />
         }
       />
     </SafeAreaView>

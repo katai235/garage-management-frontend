@@ -6,17 +6,19 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { authApi } from '../services/api';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 // ── Strength calculator (pure function, outside component) ──────────────────
+// Returns a translation KEY for the label, plus the color — translation happens at render time
 const getStrength = (pw: string) => {
   const score =
     (pw.length >= 6 ? 1 : 0) +
     (pw.length >= 10 ? 1 : 0) +
     (/[A-Z]/.test(pw) || /[0-9]/.test(pw) ? 1 : 0) +
     (/[^A-Za-z0-9]/.test(pw) ? 1 : 0);
-  const labels = ['Too Weak', 'Weak', 'Fair', 'Strong', 'Very Strong'];
+  const labelKeys = ['tooWeak', 'weak', 'fair', 'strong', 'veryStrong'];
   const colors = [Colors.danger, Colors.danger, Colors.warning, Colors.info, Colors.success];
-  return { score, label: labels[score], color: colors[score] };
+  return { score, labelKey: labelKeys[score], color: colors[score] };
 };
 
 export default function ChangePasswordScreen({ navigation }: any) {
@@ -28,16 +30,17 @@ export default function ChangePasswordScreen({ navigation }: any) {
   const [showConfirm, setShowConfirm]           = useState(false);
   const [errors, setErrors]                     = useState<Record<string, string>>({});
   const [loading, setLoading]                   = useState(false);
+  const { t } = useLanguageStore();
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!currentPassword) e.currentPassword = 'Current password is required';
-    if (!newPassword) e.newPassword = 'New password is required';
-    else if (newPassword.length < 6) e.newPassword = 'Password must be at least 6 characters';
-    if (!confirmPassword) e.confirmPassword = 'Please confirm your new password';
-    else if (newPassword !== confirmPassword) e.confirmPassword = 'Passwords do not match';
+    if (!currentPassword) e.currentPassword = t('currentPasswordRequired');
+    if (!newPassword) e.newPassword = t('newPasswordRequired');
+    else if (newPassword.length < 6) e.newPassword = t('passwordMinLength');
+    if (!confirmPassword) e.confirmPassword = t('confirmPasswordRequired');
+    else if (newPassword !== confirmPassword) e.confirmPassword = t('passwordsDoNotMatch');
     if (currentPassword && newPassword && currentPassword === newPassword)
-      e.newPassword = 'New password must be different from current password';
+      e.newPassword = t('passwordMustDiffer');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -47,12 +50,12 @@ export default function ChangePasswordScreen({ navigation }: any) {
     setLoading(true);
     try {
       await authApi.changePassword({ currentPassword, newPassword });
-      Alert.alert('Success', 'Password changed successfully!', [
+      Alert.alert(t('success'), t('passwordChangedSuccess'), [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (error: any) {
-      const msg = error.response?.data?.error || 'Failed to change password. Please try again.';
-      Alert.alert('Error', msg);
+      const msg = error.response?.data?.error || t('failedChangePassword');
+      Alert.alert(t('error'), msg);
     } finally {
       setLoading(false);
     }
@@ -66,9 +69,9 @@ export default function ChangePasswordScreen({ navigation }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backBtn}>‹ Back</Text>
+            <Text style={styles.backBtn}>‹ {t('back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Change Password</Text>
+          <Text style={styles.title}>{t('changePassword')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
@@ -77,18 +80,18 @@ export default function ChangePasswordScreen({ navigation }: any) {
           <View style={styles.infoBanner}>
             <Text style={styles.infoIcon}>🔒</Text>
             <Text style={styles.infoText}>
-              Choose a strong password that's at least 6 characters long.
+              {t('choosePasswordHint')}
             </Text>
           </View>
 
           <View style={[styles.card, Shadow.sm]}>
             {/* Current Password */}
             <View style={styles.fieldWrap}>
-              <Text style={styles.label}>Current Password</Text>
+              <Text style={styles.label}>{t('currentPassword')}</Text>
               <View style={[styles.inputRow, errors.currentPassword ? styles.inputError : null]}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your current password"
+                  placeholder={t('enterCurrentPassword')}
                   placeholderTextColor={Colors.textTertiary}
                   value={currentPassword}
                   onChangeText={v => { setCurrentPassword(v); if (errors.currentPassword) setErrors(p => ({ ...p, currentPassword: '' })); }}
@@ -107,11 +110,11 @@ export default function ChangePasswordScreen({ navigation }: any) {
 
             {/* New Password */}
             <View style={styles.fieldWrap}>
-              <Text style={styles.label}>New Password</Text>
+              <Text style={styles.label}>{t('newPassword')}</Text>
               <View style={[styles.inputRow, errors.newPassword ? styles.inputError : null]}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter your new password"
+                  placeholder={t('enterNewPassword')}
                   placeholderTextColor={Colors.textTertiary}
                   value={newPassword}
                   onChangeText={v => { setNewPassword(v); if (errors.newPassword) setErrors(p => ({ ...p, newPassword: '' })); }}
@@ -126,27 +129,27 @@ export default function ChangePasswordScreen({ navigation }: any) {
               {errors.newPassword ? <Text style={styles.errorText}>{errors.newPassword}</Text> : null}
 
               {/* Strength indicator */}
-              {strength && (
+              {!!strength && (
                 <View style={styles.strengthRow}>
-                  <Text style={styles.strengthLabel}>Strength:</Text>
+                  <Text style={styles.strengthLabel}>{t('strength')}:</Text>
                   {[1, 2, 3, 4].map(i => (
                     <View
                       key={i}
                       style={[styles.strengthBar, { backgroundColor: i <= strength.score ? strength.color : Colors.border }]}
                     />
                   ))}
-                  <Text style={[styles.strengthHint, { color: strength.color }]}>{strength.label}</Text>
+                  <Text style={[styles.strengthHint, { color: strength.color }]}>{t(strength.labelKey)}</Text>
                 </View>
               )}
             </View>
 
             {/* Confirm Password */}
             <View style={styles.fieldWrap}>
-              <Text style={styles.label}>Confirm New Password</Text>
+              <Text style={styles.label}>{t('confirmNewPassword')}</Text>
               <View style={[styles.inputRow, errors.confirmPassword ? styles.inputError : null]}>
                 <TextInput
                   style={styles.input}
-                  placeholder="Re-enter your new password"
+                  placeholder={t('reenterNewPassword')}
                   placeholderTextColor={Colors.textTertiary}
                   value={confirmPassword}
                   onChangeText={v => { setConfirmPassword(v); if (errors.confirmPassword) setErrors(p => ({ ...p, confirmPassword: '' })); }}
@@ -168,11 +171,11 @@ export default function ChangePasswordScreen({ navigation }: any) {
             disabled={loading}
             activeOpacity={0.85}
           >
-            <Text style={styles.submitBtnText}>{loading ? 'Updating...' : '🔐 Update Password'}</Text>
+            <Text style={styles.submitBtnText}>{loading ? t('updating') : `🔐 ${t('updatePassword')}`}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.cancelBtn} onPress={() => navigation.goBack()}>
-            <Text style={styles.cancelBtnText}>Cancel</Text>
+            <Text style={styles.cancelBtnText}>{t('cancel')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

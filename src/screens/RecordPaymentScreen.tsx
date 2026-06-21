@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { invoiceApi } from '../services/api';
 import { Input, Button, StatusBadge } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const PAYMENT_METHODS = [
   { key: 'cash', label: '💵 Cash' },
@@ -24,6 +25,7 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
   const totalAmount = parseFloat(String(invoice?.totalAmount ?? invoice?.total_amount ?? 0));
   const paidAmount = parseFloat(String(invoice?.paidAmount ?? invoice?.paid_amount ?? 0));
   const balance = totalAmount - paidAmount;
+  const { t } = useLanguageStore();
 
   const [form, setForm] = useState({
     amount: Math.round(balance).toString(),
@@ -38,7 +40,7 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ Back</Text></TouchableOpacity>
-          <Text style={styles.title}>Record Payment</Text>
+          <Text style={styles.title}>{t('recordPayment')}</Text>
           <View style={{ width: 50 }} />
         </View>
         <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
@@ -84,8 +86,8 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ Back</Text></TouchableOpacity>
-          <Text style={styles.title}>Record Payment</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ {t('back')}</Text></TouchableOpacity>
+          <Text style={styles.title}>{t('recordPayment')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
@@ -100,15 +102,15 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
             <Text style={styles.customerName}>👤 {customerName}</Text>
             <View style={styles.amountGrid}>
               <View style={styles.amountItem}>
-                <Text style={styles.amountLabel}>Total</Text>
+                <Text style={styles.amountLabel}>{t('total')}</Text>
                 <Text style={styles.amountValue}>{fmtKip(totalAmount)}</Text>
               </View>
               <View style={styles.amountItem}>
-                <Text style={styles.amountLabel}>Paid</Text>
+                <Text style={styles.amountLabel}>{t('paid')}</Text>
                 <Text style={[styles.amountValue, { color: Colors.success }]}>{fmtKip(paidAmount)}</Text>
               </View>
               <View style={styles.amountItem}>
-                <Text style={styles.amountLabel}>Balance</Text>
+                <Text style={styles.amountLabel}>{t('balance')}</Text>
                 <Text style={[styles.amountValue, { color: Colors.danger }]}>{fmtKip(balance)}</Text>
               </View>
             </View>
@@ -116,9 +118,9 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
 
           {/* Amount */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Payment Amount (₭)</Text>
+            <Text style={styles.sectionTitle}>{`${t('paymentamount')} (₭)`}</Text>
             <Input
-              label="Amount in Kip *"
+              label={`${t('amountin')} *`}
               placeholder="0"
               value={form.amount}
               onChangeText={t => setForm(p => ({ ...p, amount: t }))}
@@ -138,7 +140,7 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
 
           {/* Payment Method */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Payment Method</Text>
+            <Text style={styles.sectionTitle}>{t('paymentMethod')}</Text>
             <View style={styles.methodGrid}>
               {PAYMENT_METHODS.map(m => (
                 <TouchableOpacity
@@ -154,11 +156,11 @@ export default function RecordPaymentScreen({ navigation, route }: any) {
 
           {/* Reference & Notes */}
           <View style={[styles.card, Shadow.sm]}>
-            <Input label="Reference Number (optional)" placeholder="Transaction ID, receipt no..." value={form.paymentReference} onChangeText={t => setForm(p => ({ ...p, paymentReference: t }))} />
-            <Input label="Notes (optional)" placeholder="Additional notes..." value={form.notes} onChangeText={t => setForm(p => ({ ...p, notes: t }))} multiline numberOfLines={2} />
+            <Input label={t('Referenceoption')} placeholder="Transaction ID, receipt no..." value={form.paymentReference} onChangeText={t => setForm(p => ({ ...p, paymentReference: t }))} />
+            <Input label={t('Noteoptional')} placeholder="Additional notes..." value={form.notes} onChangeText={t => setForm(p => ({ ...p, notes: t }))} multiline numberOfLines={2} />
           </View>
 
-          <Button title="✅ Confirm Payment" onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
+          <Button title= {t('confirmpayment')} onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

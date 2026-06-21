@@ -9,6 +9,8 @@ import { appointmentApi, scheduleApi } from '../services/api';
 import { StatusBadge, EmptyState, LoadingState, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
 import { usePermissions } from '../hooks/usePermissions';
+import { useAuthStore } from '../store/authStore';
+import { useLanguageStore } from '../store/languageStore';
 
 const DAYS        = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MONTHS_LONG = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -61,6 +63,8 @@ export default function AppointmentsScreen({ navigation }: any) {
   const [schedDate, setSchedDate]           = useState(new Date());
 
   const { can, isAdminOrManager } = usePermissions();
+  const { user } = useAuthStore();
+  const { t } = useLanguageStore();
   const isManager   = isAdminOrManager();
   const canCreate   = can('appointments.create');
 
@@ -180,21 +184,21 @@ export default function AppointmentsScreen({ navigation }: any) {
           </View>
         </View>
 
-        {canEdit && (status === 'pending' || status === 'confirmed' || status === 'in-progress') && (
+        {canEdit && (status === t('pending') || status === 'confirmed' || status === 'in-progress') && (
           <View style={styles.actionsRow}>
             {status === 'pending' && (
               <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.successLight }]} onPress={() => updateApptStatus(item.id, 'confirmed')}>
-                <Text style={[styles.actionBtnText, { color: Colors.success }]}>✓ Confirm</Text>
+                <Text style={[styles.actionBtnText, { color: Colors.success }]}>{t('confirm2')}</Text>
               </TouchableOpacity>
             )}
             {(status === 'pending' || status === 'confirmed') && (
               <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.infoLight }]} onPress={() => updateApptStatus(item.id, 'in-progress')}>
-                <Text style={[styles.actionBtnText, { color: Colors.info }]}>▶ Start</Text>
+                <Text style={[styles.actionBtnText, { color: Colors.info }]}>{t('start')}</Text>
               </TouchableOpacity>
             )}
             {status !== 'completed' && (
               <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.primaryAlpha }]} onPress={() => updateApptStatus(item.id, 'completed')}>
-                <Text style={[styles.actionBtnText, { color: Colors.primary }]}>✅ Done</Text>
+                <Text style={[styles.actionBtnText, { color: Colors.primary }]}>{t('done')}</Text>
               </TouchableOpacity>
             )}
             {canDelete && (
@@ -289,12 +293,12 @@ export default function AppointmentsScreen({ navigation }: any) {
           {/* Staff/tech can update status */}
           {status === 'pending' && (
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.infoLight }]} onPress={() => updateSchedStatus(item.id, 'in-progress')}>
-              <Text style={[styles.actionBtnText, { color: Colors.info }]}>▶ Start Work</Text>
+              <Text style={[styles.actionBtnText, { color: Colors.info }]}>{t('startWork')}</Text>
             </TouchableOpacity>
           )}
           {status === 'in-progress' && (
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.successLight }]} onPress={() => updateSchedStatus(item.id, 'done')}>
-              <Text style={[styles.actionBtnText, { color: Colors.success }]}>✅ Mark Done</Text>
+              <Text style={[styles.actionBtnText, { color: Colors.success }]}>{t('markDone')}</Text>
             </TouchableOpacity>
           )}
           {status === 'done' && (
@@ -373,14 +377,14 @@ export default function AppointmentsScreen({ navigation }: any) {
       {/* ── Header ── */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>Schedule</Text>
-          <Text style={styles.subtitle}>Appointments & work schedules</Text>
+          <Text style={styles.title}>{t('appointments')}</Text>
+          <Text style={styles.subtitle}>{t('appointmentsSubtitle')}</Text>
         </View>
         {activeTab === 'appointments' && canCreate && (
-          <Button title="+ New" onPress={() => navigation.navigate('AddAppointment')} size="sm" />
+          <Button title={`+ ${t('newAppointment')}`} onPress={() => navigation.navigate('AddAppointment')} size="sm" />
         )}
         {activeTab === 'schedules' && isManager && (
-          <Button title="+ Assign" onPress={() => navigation.navigate('AddSchedule')} size="sm" />
+          <Button title={t('addSchedule')} onPress={() => navigation.navigate('AddSchedule')} size="sm" />
         )}
       </View>
 
@@ -390,7 +394,7 @@ export default function AppointmentsScreen({ navigation }: any) {
           <Animated.View style={[styles.tabIndicator, { transform: [{ translateX: indicatorX }], width: (SCREEN_W - 40) / 2 }]} />
           <TouchableOpacity style={styles.tabBtn} onPress={() => switchTab('appointments')} activeOpacity={0.8}>
             <Text style={[styles.tabText, activeTab === 'appointments' && styles.tabTextActive]}>
-              📅 Appointments
+              📅 {t('appointments')}
             </Text>
             {apptCounts.total > 0 && (
               <View style={[styles.tabBadge, activeTab === 'appointments' && styles.tabBadgeActive]}>
@@ -402,7 +406,7 @@ export default function AppointmentsScreen({ navigation }: any) {
           </TouchableOpacity>
           <TouchableOpacity style={styles.tabBtn} onPress={() => switchTab('schedules')} activeOpacity={0.8}>
             <Text style={[styles.tabText, activeTab === 'schedules' && styles.tabTextActive]}>
-              🗂️ Schedules
+              🗂️ {t('schedules')}
             </Text>
             {schedCounts.total > 0 && (
               <View style={[styles.tabBadge, activeTab === 'schedules' && styles.tabBadgeActive]}>
@@ -450,8 +454,8 @@ export default function AppointmentsScreen({ navigation }: any) {
                 ListEmptyComponent={
                   <View style={styles.emptyBox}>
                     <Text style={styles.emptyIcon}>📅</Text>
-                    <Text style={styles.emptyTitle}>No appointments for this date</Text>
-                    {canCreate && <Button title="+ Create Appointment" onPress={() => navigation.navigate('AddAppointment')} style={{ marginTop: Spacing.base }} />}
+                    <Text style={styles.emptyTitle}>{t('noAppointments')}</Text>
+                    {canCreate && <Button title={`+ ${t('newAppointment')}`} onPress={() => navigation.navigate('AddAppointment')} style={{ marginTop: Spacing.base }} />}
                   </View>
                 }
               />
@@ -482,7 +486,7 @@ export default function AppointmentsScreen({ navigation }: any) {
           </View>
           {!isManager && (
             <View style={styles.myWorkBanner}>
-              <Text style={styles.myWorkText}>👤 Showing work assigned to you</Text>
+              <Text style={styles.myWorkText}>{t('myWork')}</Text>
             </View>
           )}
           {schedLoading
@@ -500,9 +504,9 @@ export default function AppointmentsScreen({ navigation }: any) {
                   <View style={styles.emptyBox}>
                     <Text style={styles.emptyIcon}>🗂️</Text>
                     <Text style={styles.emptyTitle}>
-                      {isManager ? 'No schedules for this date' : 'No work assigned to you yet'}
+                      {isManager ? t('noSchedules') : t('myWork')}
                     </Text>
-                    {isManager && <Button title="+ Assign Work" onPress={() => navigation.navigate('AddSchedule')} style={{ marginTop: Spacing.base }} />}
+                    {isManager && <Button title={`${t('addSchedule')} ${t('assignWork')}`} onPress={() => navigation.navigate('AddSchedule')} style={{ marginTop: Spacing.base }} />}
                   </View>
                 }
               />

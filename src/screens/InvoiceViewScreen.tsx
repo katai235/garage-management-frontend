@@ -8,6 +8,7 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -38,12 +39,13 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
   const invoice = route?.params?.invoice;
   const billRef = useRef<any>(null);
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguageStore();
 
   if (!invoice) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>No invoice data found.</Text>
+          <Text style={styles.errorText}>{t('Noinvoice')}</Text>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtnSm}>
             <Text style={styles.backBtnSmText}>Go Back</Text>
           </TouchableOpacity>
@@ -112,9 +114,9 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>‹ Back</Text>
+          <Text style={styles.backBtnText}>‹ {t('back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Invoice</Text>
+        <Text style={styles.topTitle}>{t('invoicebill')}</Text>
         <View style={styles.topActions}>
           <TouchableOpacity style={styles.iconBtn} onPress={handleShare} disabled={saving}>
             <Text style={styles.iconBtnText}>📤</Text>
@@ -156,14 +158,14 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
             {/* Invoice meta */}
             <View style={styles.metaRow}>
               <View>
-                <Text style={styles.metaLabel}>Invoice #</Text>
+                <Text style={styles.metaLabel}>{t('invoiceNumber')}</Text>
                 <Text style={styles.metaValue}>{invoiceNum}</Text>
               </View>
               <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.metaLabel}>Date</Text>
+                <Text style={styles.metaLabel}>{t('date')}</Text>
                 <Text style={styles.metaValue}>{fmtDate(createdAt)}</Text>
                 {dueDate ? <>
-                  <Text style={[styles.metaLabel, { marginTop: 6 }]}>Due Date</Text>
+                  <Text style={[styles.metaLabel, { marginTop: 6 }]}>{t('DueDate')}</Text>
                   <Text style={[styles.metaValue, { color: Colors.danger }]}>{fmtDate(dueDate)}</Text>
                 </> : null}
               </View>
@@ -179,10 +181,10 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
 
             {/* Line items table */}
             <View style={styles.tableHeader}>
-              <Text style={[styles.tableHead, { flex: 3 }]}>Description</Text>
-              <Text style={[styles.tableHead, { flex: 1, textAlign: 'center' }]}>Qty</Text>
-              <Text style={[styles.tableHead, { flex: 2, textAlign: 'right' }]}>Price</Text>
-              <Text style={[styles.tableHead, { flex: 2, textAlign: 'right' }]}>Amount</Text>
+              <Text style={[styles.tableHead, { flex: 3 }]}>{t('description')}</Text>
+              <Text style={[styles.tableHead, { flex: 1, textAlign: 'center' }]}>{t('qty')}</Text>
+              <Text style={[styles.tableHead, { flex: 2, textAlign: 'right' }]}>{t('price')}</Text>
+              <Text style={[styles.tableHead, { flex: 2, textAlign: 'right' }]}>{t('amount')}</Text>
             </View>
 
             {items.length > 0
@@ -206,7 +208,7 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
                 })
               : (
                 <View style={styles.tableRow}>
-                  <Text style={[styles.tableCell, { color: Colors.textTertiary }]}>No line items</Text>
+                  <Text style={[styles.tableCell, { color: Colors.textTertiary }]}>{t('Nolineitems')}</Text>
                 </View>
               )
             }
@@ -214,31 +216,31 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
             {/* Totals */}
             <View style={styles.totalsBlock}>
               <View style={styles.totalLine}>
-                <Text style={styles.totalLineLabel}>Subtotal</Text>
+                <Text style={styles.totalLineLabel}>{t('subtotal')}</Text>
                 <Text style={styles.totalLineValue}>{fmtKip(subtotal)}</Text>
               </View>
               {discount > 0 && (
                 <View style={styles.totalLine}>
-                  <Text style={styles.totalLineLabel}>Discount</Text>
+                  <Text style={styles.totalLineLabel}>{t('discount')}</Text>
                   <Text style={[styles.totalLineValue, { color: Colors.success }]}>-{fmtKip(discount)}</Text>
                 </View>
               )}
               <View style={styles.totalLine}>
-                <Text style={styles.totalLineLabel}>Tax ({taxRate}%)</Text>
+                <Text style={styles.totalLineLabel}>{t('tax')} ({taxRate}%)</Text>
                 <Text style={styles.totalLineValue}>{fmtKip(taxAmount)}</Text>
               </View>
               <View style={styles.grandLine}>
-                <Text style={styles.grandLabel}>TOTAL</Text>
+                <Text style={styles.grandLabel}>{t('grandTotal')}</Text>
                 <Text style={styles.grandValue}>{fmtKip(total)}</Text>
               </View>
               {paidAmount > 0 && (
                 <>
                   <View style={styles.totalLine}>
-                    <Text style={styles.totalLineLabel}>Paid</Text>
+                    <Text style={styles.totalLineLabel}>{t('paid')}</Text>
                     <Text style={[styles.totalLineValue, { color: Colors.success }]}>{fmtKip(paidAmount)}</Text>
                   </View>
                   <View style={styles.totalLine}>
-                    <Text style={[styles.totalLineLabel, { fontWeight: '700' }]}>Balance Due</Text>
+                    <Text style={[styles.totalLineLabel, { fontWeight: '700' }]}>{t('balanceDue')}</Text>
                     <Text style={[styles.totalLineValue, { color: Colors.danger, fontWeight: '700' }]}>{fmtKip(balance)}</Text>
                   </View>
                 </>
@@ -264,12 +266,12 @@ export default function InvoiceViewScreen({ navigation, route }: any) {
         {/* Action buttons below the bill */}
         <View style={styles.bottomActions}>
           <TouchableOpacity style={styles.btnShare} onPress={handleShare} disabled={saving}>
-            <Text style={styles.btnShareText}>📤  Share Bill</Text>
+            <Text style={styles.btnShareText}>📤 {t('ShareBill')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.btnSave} onPress={handleSaveImage} disabled={saving}>
             {saving
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.btnSaveText}>💾  Save to Photos</Text>
+              : <Text style={styles.btnSaveText}>💾  {t('saveToPhotos')}</Text>
             }
           </TouchableOpacity>
         </View>

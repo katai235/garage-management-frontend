@@ -5,9 +5,10 @@ import { useFocusEffect } from '@react-navigation/native';
 import { invoiceApi } from '../services/api';
 import { StatusBadge, EmptyState, LoadingState, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
-import { usePermissions } from '../hooks/usePermissions';
+import { useAuthStore } from '../store/authStore';
+import { useLanguageStore } from '../store/languageStore';
 
-const STATUS_FILTERS = ['all','paid','unpaid','partial','draft'];
+const STATUS_FILTERS = ['all','paid','unpaid','draft'];
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 const fmtKip = (v: any) => {
@@ -32,10 +33,12 @@ export default function InvoicesScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
-  const { can } = usePermissions();
-  const canCreate = can('invoices.create');
-  const canPayment = can('invoices.payment');
-  const canDelete = can('invoices.delete');
+  const { user } = useAuthStore();
+  const { t } = useLanguageStore();
+  const role = user?.role || 'technician';
+  const canCreate = ['admin','manager','staff'].includes(role);
+  const canPayment = ['admin','manager','staff'].includes(role);
+  const canDelete = ['admin','manager'].includes(role);
 
   const fetchInvoices = async () => {
     try {
@@ -94,18 +97,18 @@ export default function InvoicesScreen({ navigation }: any) {
         {/* Amounts */}
         <View style={styles.amountRow}>
           <View style={styles.amountCol}>
-            <Text style={styles.amountLabel}>Total</Text>
+            <Text style={styles.amountLabel}>{t('total')}</Text>
             <Text style={styles.amountTotal}>{fmtKip(totalAmount)}</Text>
           </View>
           {paidAmount > 0 && (
             <View style={styles.amountCol}>
-              <Text style={styles.amountLabel}>Paid</Text>
+              <Text style={styles.amountLabel}>{t('paid')}</Text>
               <Text style={[styles.amountNum, { color: Colors.success }]}>{fmtKip(paidAmount)}</Text>
             </View>
           )}
           {!isPaid && !isCancelled && (
             <View style={styles.amountCol}>
-              <Text style={styles.amountLabel}>Balance</Text>
+              <Text style={styles.amountLabel}>{t('balance')}</Text>
               <Text style={[styles.amountNum, { color: Colors.danger }]}>{fmtKip(balance)}</Text>
             </View>
           )}
@@ -119,17 +122,17 @@ export default function InvoicesScreen({ navigation }: any) {
               onPress={() => navigation.navigate('RecordPayment', { invoice: item })}
               activeOpacity={0.8}
             >
-              <Text style={styles.payBtnText}>💳  Record Payment</Text>
+              <Text style={styles.payBtnText}>{t('recordPayment')}</Text>
             </TouchableOpacity>
           )}
           {isPaid && (
             <View style={styles.paidBadge}>
-              <Text style={styles.paidText}>✅  Fully Paid</Text>
+              <Text style={styles.paidText}>{t('fullyPaid')}</Text>
             </View>
           )}
           {isCancelled && (
             <View style={[styles.paidBadge, { backgroundColor: Colors.dangerLight }]}>
-              <Text style={[styles.paidText, { color: Colors.danger }]}>❌  Cancelled</Text>
+              <Text style={[styles.paidText, { color: Colors.danger }]}>❌ {t('cancelled')}</Text>
             </View>
           )}
           {/* View & print bill */}
@@ -165,21 +168,21 @@ export default function InvoicesScreen({ navigation }: any) {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>Billing & Invoices</Text>
-          <Text style={styles.subtitle}>Create and manage invoices</Text>
+          <Text style={styles.title}>{t('invoices')}</Text>
+          <Text style={styles.subtitle}>{t('invoicesSubtitle')}</Text>
         </View>
         {canCreate && (
-          <Button title="+ New" onPress={() => navigation.navigate('AddInvoice', {})} size="sm" />
+          <Button title={t('newInvoice')} onPress={() => navigation.navigate('AddInvoice', {})} size="sm" />
         )}
       </View>
 
       {/* Summary */}
       <View style={styles.summaryRow}>
         {[
-          { label: 'Revenue', value: fmtKip(parseFloat(summary.total_revenue || 0)), color: Colors.success },
-          { label: 'Invoices', value: String(summary.total_invoices || 0), color: Colors.primary },
-          { label: 'Paid', value: String(summary.paid_count || 0), color: Colors.success },
-          { label: 'Unpaid', value: String(summary.unpaid_count || 0), color: Colors.danger },
+          { label: t('revenue'), value: fmtKip(parseFloat(summary.total_revenue || 0)), color: Colors.success },
+          { label: t('invoices').split(' ')[0], value: String(summary.total_invoices || 0), color: Colors.primary },
+          { label: t('paid'), value: String(summary.paid_count || 0), color: Colors.success },
+          { label: t('unpaid'), value: String(summary.unpaid_count || 0), color: Colors.danger },
         ].map(s => (
           <View key={s.label} style={[styles.summaryCard, Shadow.sm]}>
             <Text style={[styles.summaryValue, { color: s.color }]}>{s.value}</Text>
@@ -192,7 +195,7 @@ export default function InvoicesScreen({ navigation }: any) {
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
           <Text>🔍</Text>
-          <TextInput style={styles.searchInput} placeholder="Search invoices..." placeholderTextColor={Colors.textTertiary} value={search} onChangeText={setSearch} onSubmitEditing={fetchInvoices} returnKeyType="search" />
+          <TextInput style={styles.searchInput} placeholder={t('search')} placeholderTextColor={Colors.textTertiary} value={search} onChangeText={setSearch} onSubmitEditing={fetchInvoices} returnKeyType="search" />
         </View>
       </View>
 
@@ -219,9 +222,9 @@ export default function InvoicesScreen({ navigation }: any) {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchInvoices(); }} tintColor={Colors.primary} />}
         ListEmptyComponent={
-          <EmptyState icon="🧾" title="No invoices found"
-            subtitle={activeFilter !== 'all' ? `No ${activeFilter} invoices` : 'Tap + New to create your first invoice'}
-            actionLabel={canCreate ? '+ New Invoice' : undefined}
+          <EmptyState icon="🧾" title={t('noInvoices')}
+            subtitle={t('noInvoices')}
+            actionLabel={canCreate ? t('newInvoice') : undefined}
             onAction={canCreate ? () => navigation.navigate('AddInvoice', {}) : undefined}
           />
         }

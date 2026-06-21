@@ -1,3 +1,4 @@
+import { useLanguageStore } from '../store/languageStore';
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, KeyboardAvoidingView,
@@ -32,6 +33,7 @@ export default function AddStockItemScreen({ navigation, route }: any) {
     location:     existingItem?.location     || '',
     notes:        existingItem?.notes        || '',
   });
+  const { t } = useLanguageStore();
   const [imageUri, setImageUri]   = useState<string | null>(existingItem?.imageUrl || existingItem?.image_url || null);
   const [errors, setErrors]       = useState<Record<string, string>>({});
   const [loading, setLoading]     = useState(false);
@@ -86,10 +88,10 @@ export default function AddStockItemScreen({ navigation, route }: any) {
   };
 
   const showImageOptions = () => {
-    Alert.alert('Add Photo', 'Choose how to add a photo', [
-      { text: '📷 Take Photo',      onPress: pickFromCamera  },
-      { text: '🖼️ Choose from Library', onPress: pickFromLibrary },
-      ...(imageUri ? [{ text: '🗑️ Remove Photo', style: 'destructive' as const, onPress: () => setImageUri(null) }] : []),
+    Alert.alert(t('itemPhoto'), 'Choose how to add a photo', [
+      { text: t('takePhoto'),      onPress: pickFromCamera  },
+      { text: t('chooseFromLibrary'), onPress: pickFromLibrary },
+      ...(imageUri ? [{ text: t('removePhoto'), style: 'destructive' as const, onPress: () => setImageUri(null) }] : []),
       { text: 'Cancel', style: 'cancel' },
     ]);
   };
@@ -114,7 +116,7 @@ export default function AddStockItemScreen({ navigation, route }: any) {
       const hasNewImage = imageUri && imageUri.startsWith('file');
 
       if (hasNewImage) {
-        // Use FormData only when a new local image is attached
+        // Use fetch directly for multipart — axios has issues with FormData on React Native
         const formData = new FormData();
         formData.append('name',         form.name);
         formData.append('sku',          form.sku.toUpperCase());
@@ -127,15 +129,32 @@ export default function AddStockItemScreen({ navigation, route }: any) {
         formData.append('notes',        form.notes);
         if (!isEditing) formData.append('quantity', String(parseInt(form.quantity)));
 
-        const filename  = imageUri.split('/').pop() || 'photo.jpg';
+        const filename  = imageUri!.split('/').pop() || 'photo.jpg';
         const extension = filename.split('.').pop()?.toLowerCase() || 'jpg';
         const mimeType  = extension === 'png' ? 'image/png' : 'image/jpeg';
         formData.append('image', { uri: imageUri, name: filename, type: mimeType } as any);
 
-        if (isEditing) {
-          await stockApi.updateWithImage(existingItem.id, formData);
-        } else {
-          await stockApi.createWithImage(formData);
+        // Get token from storage for auth header
+        const SecureStore = await import('expo-secure-store');
+        const token = await SecureStore.getItemAsync('accessToken');
+
+        const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+        const url = isEditing
+          ? `${API_BASE}/stock/${existingItem.id}`
+          : `${API_BASE}/stock`;
+
+        const response = await fetch(url, {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            // Do NOT set Content-Type — fetch sets it with boundary automatically
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.error || 'Upload failed');
         }
       } else {
         // No new image — use regular JSON
@@ -178,9 +197,9 @@ export default function AddStockItemScreen({ navigation, route }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backBtn}>‹ Back</Text>
+            <Text style={styles.backBtn}>‹ {t('back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>{isEditing ? '✏️ Edit Item' : '+ Add Stock Item'}</Text>
+          <Text style={styles.title}>{isEditing ? t('editItem') : t('addItem')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
@@ -188,7 +207,7 @@ export default function AddStockItemScreen({ navigation, route }: any) {
 
           {/* ── Photo picker ── */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Item Photo</Text>
+            <Text style={styles.sectionTitle}>{t('itemPhoto')}</Text>
             <TouchableOpacity style={styles.photoBox} onPress={showImageOptions} activeOpacity={0.8}>
               {imageUri ? (
                 <>
@@ -209,16 +228,16 @@ export default function AddStockItemScreen({ navigation, route }: any) {
 
           {/* Item Details */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Item Details</Text>
-            <Input label="Item Name *" placeholder="e.g. Synthetic Motor Oil 5W-30" value={form.name} onChangeText={set('name')} error={errors.name} />
-            <Input label="SKU *" placeholder="e.g. OIL-5W30-001" value={form.sku} onChangeText={set('sku')} error={errors.sku} autoCapitalize="characters" />
-            <Input label="Supplier" placeholder="e.g. Mobil 1" value={form.supplier} onChangeText={set('supplier')} />
-            <Input label="Storage Location" placeholder="e.g. Shelf A-3" value={form.location} onChangeText={set('location')} />
+            <Text style={styles.sectionTitle}>{t('ItemDetails')}</Text>
+            <Input label={`${t('itemName')} *`} placeholder="e.g. Synthetic Motor Oil 5W-30" value={form.name} onChangeText={set('name')} error={errors.name} />
+            <Input label={`${t('sku')} *`} placeholder="e.g. OIL-5W30-001" value={form.sku} onChangeText={set('sku')} error={errors.sku} autoCapitalize="characters" />
+            <Input label={t('supplier')} placeholder="e.g. Mobil 1" value={form.supplier} onChangeText={set('supplier')} />
+            <Input label={t('location')} placeholder="e.g. Shelf A-3" value={form.location} onChangeText={set('location')} />
           </View>
 
           {/* Category */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Category</Text>
+            <Text style={styles.sectionTitle}>{t('category')}</Text>
             <View style={styles.categoryGrid}>
               {CATEGORIES.map(cat => (
                 <TouchableOpacity
@@ -237,35 +256,35 @@ export default function AddStockItemScreen({ navigation, route }: any) {
 
           {/* Stock & Pricing */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Stock & Pricing</Text>
+            <Text style={styles.sectionTitle}>{t('StockPricing')}</Text>
             {!isEditing && (
-              <Input label="Initial Quantity *" placeholder="0" value={form.quantity} onChangeText={set('quantity')} keyboardType="numeric" error={errors.quantity} />
+              <Input label={`${t('initialQuantity')} *`} placeholder="0" value={form.quantity} onChangeText={set('quantity')} keyboardType="numeric" error={errors.quantity} />
             )}
             {isEditing && (
               <View style={styles.infoBox}>
-                <Text style={styles.infoText}>ℹ️ Current Quantity: <Text style={styles.infoValue}>{existingItem?.quantity} units</Text></Text>
+                <Text style={styles.infoText}>ℹ️ {t('currentQuantity')}: <Text style={styles.infoValue}>{existingItem?.quantity} units</Text></Text>
                 <Text style={styles.infoText}>Use the <Text style={styles.infoValue}>⚙️ Adjust</Text> button to change quantity.</Text>
               </View>
             )}
-            <Input label="Reorder Level" placeholder="10" value={form.reorderLevel} onChangeText={set('reorderLevel')} keyboardType="numeric" />
+            <Input label={t('reorderLevel')} placeholder="10" value={form.reorderLevel} onChangeText={set('reorderLevel')} keyboardType="numeric" />
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Input label="Cost Price (₭) *" placeholder="0" value={form.costPrice} onChangeText={set('costPrice')} keyboardType="numeric" error={errors.costPrice} />
+                <Input label={`${t('costPrice')} (₭)`} placeholder="0" value={form.costPrice} onChangeText={set('costPrice')} keyboardType="numeric" error={errors.costPrice} />
               </View>
               <View style={{ flex: 1 }}>
-                <Input label="Selling Price (₭) *" placeholder="0" value={form.sellingPrice} onChangeText={set('sellingPrice')} keyboardType="numeric" error={errors.sellingPrice} />
+                <Input label={`${t('sellingPrice')} (₭)`}  placeholder="0" value={form.sellingPrice} onChangeText={set('sellingPrice')} keyboardType="numeric" error={errors.sellingPrice} />
               </View>
             </View>
           </View>
 
           {/* Notes */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Notes</Text>
-            <Input label="Notes (optional)" placeholder="Any additional notes..." value={form.notes} onChangeText={set('notes')} multiline numberOfLines={3} />
+            <Text style={styles.sectionTitle}>{t('notes')}</Text>
+            <Input label={t('Noteoptional')} placeholder={t('additionalnotes')} value={form.notes} onChangeText={set('notes')} multiline numberOfLines={3} />
           </View>
 
           <Button
-            title={isEditing ? '💾 Save Changes' : '+ Add to Inventory'}
+            title={isEditing ? t('saveChanges') : t('addToInventory')}
             onPress={handleSubmit}
             loading={loading}
             style={{ marginBottom: 40 }}

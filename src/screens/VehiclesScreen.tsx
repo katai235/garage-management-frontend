@@ -7,6 +7,7 @@ import { StatusBadge, EmptyState, LoadingState } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
 import { usePermissions } from '../hooks/usePermissions';
 import { ServiceRecord } from '../types';
+import { useLanguageStore } from '../store/languageStore';
 
 const STATUS_FILTERS = ['all', 'waiting', 'in-service', 'ready', 'completed'];
 
@@ -30,19 +31,20 @@ const fmtKip = (v: any) => {
 };
 
 // Status flow: what buttons to show for each status
-const STATUS_ACTIONS: Record<string, { next: string; label: string; color: string; bg: string }[]> = {
-  'waiting':    [{ next: 'in-service', label: '▶ Start Service',   color: Colors.info,    bg: Colors.infoLight }],
+// Built inside the component (as a function) since it needs access to t()
+const getStatusActions = (t: (key: any) => string): Record<string, { next: string; label: string; color: string; bg: string }[]> => ({
+  'waiting':    [{ next: 'in-service', label: t('startService'),   color: Colors.info,    bg: Colors.infoLight }],
   'in-service': [
-    { next: 'ready',   label: '✓ Mark Ready',      color: Colors.success, bg: Colors.successLight },
-    { next: 'waiting', label: '↩ Back to Waiting',  color: Colors.warning, bg: Colors.warningLight },
+    { next: 'ready',   label: t('markReady'),      color: Colors.success, bg: Colors.successLight },
+    { next: 'waiting', label: t('backToWaiting'),  color: Colors.warning, bg: Colors.warningLight },
   ],
   'ready': [
-    { next: 'completed',  label: '✅ Complete',        color: Colors.success, bg: Colors.successLight },
-    { next: 'in-service', label: '↩ Back to Service',  color: Colors.info,    bg: Colors.infoLight },
+    { next: 'completed',  label: t('complete'),        color: Colors.success, bg: Colors.successLight },
+    { next: 'in-service', label: t('backToService'),  color: Colors.info,    bg: Colors.infoLight },
   ],
   'completed': [],
   'cancelled': [],
-};
+});
 
 export default function VehiclesScreen({ navigation }: any) {
   const [services, setServices] = useState<ServiceRecord[]>([]);
@@ -52,6 +54,8 @@ export default function VehiclesScreen({ navigation }: any) {
   const [activeFilter, setActiveFilter] = useState('all');
   const [search, setSearch] = useState('');
   const { can } = usePermissions();
+  const { t } = useLanguageStore();
+  const STATUS_ACTIONS = getStatusActions(t);
   const canCreate = can('services.create');
   const canUpdateStatus = can('services.updateStatus');
   const canDelete = can('services.delete');
@@ -178,13 +182,13 @@ export default function VehiclesScreen({ navigation }: any) {
 
         {item.status === 'completed' && (
           <View style={styles.doneBanner}>
-            <Text style={styles.doneText}>✅ Service Completed</Text>
+            <Text style={styles.doneText}>{t('serviceCompleted')}</Text>
             <TouchableOpacity
               style={styles.invoiceBtn}
               onPress={() => navigateToInvoice(item)}
               activeOpacity={0.8}
             >
-              <Text style={styles.invoiceBtnText}>🧾 Create Invoice</Text>
+              <Text style={styles.invoiceBtnText}>{t('createInvoice')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -199,19 +203,19 @@ export default function VehiclesScreen({ navigation }: any) {
       {/* Header */}
       <View style={styles.header}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.title}>Vehicles & Services</Text>
-          <Text style={styles.subtitle}>Track and manage vehicle services</Text>
+          <Text style={styles.title}>{t('vehicles')}</Text>
+          <Text style={styles.subtitle}>{t('vehiclesSubtitle')}</Text>
         </View>
         {canCreate && (
           <View style={styles.headerBtns}>
             <TouchableOpacity style={styles.sellBtn} onPress={() => navigation.navigate('SellParts')}>
-              <Text style={styles.sellBtnText}>🛒 Sell Parts</Text>
+              <Text style={styles.sellBtnText}>{t('sellParts')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.outlineBtn} onPress={() => navigation.navigate('AddVehicle')}>
-              <Text style={styles.outlineBtnText}>🚗 Vehicle</Text>
+              <Text style={styles.outlineBtnText}>🚗 {t('addVehicle')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.filledBtn} onPress={() => navigation.navigate('AddService')}>
-              <Text style={styles.filledBtnText}>+ Service</Text>
+              <Text style={styles.filledBtnText}>{t('addService')}</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -221,7 +225,7 @@ export default function VehiclesScreen({ navigation }: any) {
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
           <Text>🔍</Text>
-          <TextInput style={styles.searchInput} placeholder="Search by make, model, plate..." placeholderTextColor={Colors.textTertiary} value={search} onChangeText={setSearch} onSubmitEditing={fetchServices} returnKeyType="search" />
+          <TextInput style={styles.searchInput} placeholder={t('search')} placeholderTextColor={Colors.textTertiary} value={search} onChangeText={setSearch} onSubmitEditing={fetchServices} returnKeyType="search" />
         </View>
       </View>
 
@@ -249,8 +253,8 @@ export default function VehiclesScreen({ navigation }: any) {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchServices(); }} tintColor={Colors.primary} />}
         ListEmptyComponent={
-          <EmptyState icon="🚗" title="No services found" subtitle="Add a new vehicle service to get started"
-            actionLabel={canCreate ? '+ Add Service' : undefined}
+          <EmptyState icon="🚗" title={t('noServices')} subtitle="Add a new vehicle service to get started"
+            actionLabel={canCreate ? t('addService') : undefined}
             onAction={canCreate ? () => navigation.navigate('AddService') : undefined}
           />
         }

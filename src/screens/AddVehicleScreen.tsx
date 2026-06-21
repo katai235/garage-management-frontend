@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { vehicleApi, customerApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const FUEL_TYPES = ['Gasoline', 'Diesel', 'Electric', 'Hybrid', 'LPG'];
 const CURRENT_YEAR = new Date().getFullYear();
@@ -15,6 +16,7 @@ export default function AddVehicleScreen({ navigation, route }: any) {
   const [customerSearch, setCustomerSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useLanguageStore();
   const [form, setForm] = useState({
     customerId: route?.params?.customerId || '',
     customerName: route?.params?.customerName || '',
@@ -85,8 +87,8 @@ export default function AddVehicleScreen({ navigation, route }: any) {
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ Back</Text></TouchableOpacity>
-          <Text style={styles.title}>Register Vehicle</Text>
+          <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ {t('back')}</Text></TouchableOpacity>
+          <Text style={styles.title}>{t('Registercar')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
@@ -94,13 +96,13 @@ export default function AddVehicleScreen({ navigation, route }: any) {
 
           {/* Customer */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Customer *</Text>
+            <Text style={styles.sectionTitle}>{`${t('customers')} *`}</Text>
             <TouchableOpacity
               style={[styles.selectBtn, errors.customer ? { borderColor: Colors.danger } : null]}
               onPress={() => setShowCustomerSearch(!showCustomerSearch)}
             >
               <Text style={form.customerName ? styles.selectText : styles.placeholderText}>
-                {form.customerName || 'Tap to search customer...'}
+                {form.customerName || t('Taptosearchcustomer')}
               </Text>
             </TouchableOpacity>
             {errors.customer ? <Text style={styles.errorText}>{errors.customer}</Text> : null}
@@ -108,7 +110,7 @@ export default function AddVehicleScreen({ navigation, route }: any) {
               <View style={styles.dropdown}>
                 <TextInput
                   style={styles.dropdownInput}
-                  placeholder="Type name or phone..."
+                  placeholder={t('Typenameorphone')}
                   placeholderTextColor={Colors.textTertiary}
                   value={customerSearch}
                   onChangeText={(t) => { setCustomerSearch(t); searchCustomers(t); }}
@@ -121,7 +123,7 @@ export default function AddVehicleScreen({ navigation, route }: any) {
                   </TouchableOpacity>
                 ))}
                 {customers.length === 0 && customerSearch.length > 1 && (
-                  <Text style={styles.noResult}>No customers found</Text>
+                  <Text style={styles.noResult}>{t('noCustomers')}</Text>
                 )}
               </View>
             )}
@@ -129,18 +131,18 @@ export default function AddVehicleScreen({ navigation, route }: any) {
 
           {/* Vehicle Info */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Vehicle Information</Text>
+            <Text style={styles.sectionTitle}>{t('VehicleInfo')}</Text>
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Input label="Make *" placeholder="Toyota" value={form.make} onChangeText={set('make')} error={errors.make} autoCapitalize="words" />
+                <Input label={`${t('make')} *`} placeholder="Toyota" value={form.make} onChangeText={set('make')} error={errors.make} autoCapitalize="words" />
               </View>
               <View style={{ flex: 1 }}>
-                <Input label="Model *" placeholder="Camry" value={form.model} onChangeText={set('model')} error={errors.model} autoCapitalize="words" />
+                <Input label={`${t('model')} *`} placeholder="Camry" value={form.model} onChangeText={set('model')} error={errors.model} autoCapitalize="words" />
               </View>
             </View>
 
             {/* Year Selector */}
-            <Text style={styles.fieldLabel}>Year</Text>
+            <Text style={styles.fieldLabel}>{t('year')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.yearScroll}>
               {YEARS.slice(0, 15).map(y => (
                 <TouchableOpacity
@@ -153,20 +155,20 @@ export default function AddVehicleScreen({ navigation, route }: any) {
               ))}
             </ScrollView>
 
-            <Input label="License Plate *" placeholder="ABC-1234" value={form.licensePlate} onChangeText={set('licensePlate')} error={errors.licensePlate} autoCapitalize="characters" />
+            <Input label={`${t('licensePlate')} *`} placeholder="ABC-1234" value={form.licensePlate} onChangeText={set('licensePlate')} error={errors.licensePlate} autoCapitalize="characters" />
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Input label="Color" placeholder="White" value={form.color} onChangeText={set('color')} autoCapitalize="words" />
+                <Input label={t('color')} placeholder="White" value={form.color} onChangeText={set('color')} autoCapitalize="words" />
               </View>
               <View style={{ flex: 1 }}>
-                <Input label="Mileage (km)" placeholder="50000" value={form.mileage} onChangeText={set('mileage')} keyboardType="numeric" />
+                <Input label={`${t('mileage')} (km)`} placeholder="50000" value={form.mileage} onChangeText={set('mileage')} keyboardType="numeric" />
               </View>
             </View>
           </View>
 
           {/* Fuel Type */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Fuel Type</Text>
+            <Text style={styles.sectionTitle}>{t('FuelType')}</Text>
             <View style={styles.chipGrid}>
               {FUEL_TYPES.map(f => (
                 <TouchableOpacity
@@ -182,12 +184,12 @@ export default function AddVehicleScreen({ navigation, route }: any) {
 
           {/* Additional */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Additional Info</Text>
-            <Input label="VIN (optional)" placeholder="Vehicle Identification Number" value={form.vin} onChangeText={set('vin')} autoCapitalize="characters" />
-            <Input label="Notes" placeholder="Any notes about the vehicle..." value={form.notes} onChangeText={set('notes')} multiline numberOfLines={3} />
+            <Text style={styles.sectionTitle}>{t('AdditionalInfo')}</Text>
+            <Input label={t('VIN')} placeholder="Vehicle Identification Number" value={form.vin} onChangeText={set('vin')} autoCapitalize="characters" />
+            <Input label={t('notes')} placeholder="Any notes about the vehicle..." value={form.notes} onChangeText={set('notes')} multiline numberOfLines={3} />
           </View>
 
-          <Button title="Register Vehicle" onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
+          <Button title={t('Registercar')} onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

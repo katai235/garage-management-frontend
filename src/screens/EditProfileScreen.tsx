@@ -8,9 +8,11 @@ import { authApi } from '../services/api';
 import { useAuthStore } from '../store/authStore';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 export default function EditProfileScreen({ navigation }: any) {
   const { user, setUser } = useAuthStore();
+  const { t } = useLanguageStore();
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors]   = useState<Record<string, string>>({});
@@ -25,9 +27,9 @@ export default function EditProfileScreen({ navigation }: any) {
 
   const validate = () => {
     const e: Record<string, string> = {};
-    if (!form.fullName.trim()) e.fullName = 'Full name is required';
-    if (!form.email.trim())    e.email    = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email address';
+    if (!form.fullName.trim()) e.fullName = t('fullNameRequired');
+    if (!form.email.trim())    e.email    = t('emailRequired');
+    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = t('validEmail');
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -44,11 +46,11 @@ export default function EditProfileScreen({ navigation }: any) {
       if (setUser) {
         setUser({ ...user, fullName: form.fullName.trim(), email: form.email.trim(), phone: form.phone.trim() });
       }
-      Alert.alert('✅ Profile Updated', 'Your information has been saved.', [
+      Alert.alert(`✅ ${t('profileUpdated')}`, t('infoSaved'), [
         { text: 'OK', onPress: () => navigation.goBack() }
       ]);
     } catch (err: any) {
-      Alert.alert('Error', err.response?.data?.error || 'Failed to update profile.');
+      Alert.alert(t('error'), err.response?.data?.error || t('failedUpdateProfile'));
     } finally { setLoading(false); }
   };
 
@@ -61,9 +63,9 @@ export default function EditProfileScreen({ navigation }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backBtnText}>‹ Back</Text>
+            <Text style={styles.backBtnText}>‹ {t('back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Edit Profile</Text>
+          <Text style={styles.title}>{t('editProfile')}</Text>
           <View style={{ width: 60 }} />
         </View>
 
@@ -83,18 +85,18 @@ export default function EditProfileScreen({ navigation }: any) {
 
           {/* Form */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Personal Information</Text>
+            <Text style={styles.sectionTitle}>{t('personalInformation')}</Text>
 
             <Input
-              label="Full Name *"
-              placeholder="Your full name"
+              label={`${t('fullName')} *`}
+              placeholder={t('yourFullName')}
               value={form.fullName}
               onChangeText={set('fullName')}
               error={errors.fullName}
               autoCapitalize="words"
             />
             <Input
-              label="Email Address *"
+              label={`${t('emailAddress')} *`}
               placeholder="your@email.com"
               value={form.email}
               onChangeText={set('email')}
@@ -103,7 +105,7 @@ export default function EditProfileScreen({ navigation }: any) {
               autoCapitalize="none"
             />
             <Input
-              label="Phone Number"
+              label={t('phoneNumber')}
               placeholder="+856 20 XXXX XXXX"
               value={form.phone}
               onChangeText={set('phone')}
@@ -112,17 +114,17 @@ export default function EditProfileScreen({ navigation }: any) {
 
             {/* Username — read only */}
             <View style={styles.readOnlyField}>
-              <Text style={styles.readOnlyLabel}>Username</Text>
+              <Text style={styles.readOnlyLabel}>{t('username')}</Text>
               <View style={styles.readOnlyBox}>
                 <Text style={styles.readOnlyValue}>@{user?.username}</Text>
                 <View style={styles.lockedBadge}>
-                  <Text style={styles.lockedText}>🔒 Cannot change</Text>
+                  <Text style={styles.lockedText}>🔒 {t('cannotChange')}</Text>
                 </View>
               </View>
             </View>
 
             <Button
-              title="💾 Save Changes"
+              title={`💾 ${t('saveChanges')}`}
               onPress={handleSave}
               loading={loading}
               style={{ marginTop: Spacing.md }}

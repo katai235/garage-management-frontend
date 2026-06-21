@@ -8,6 +8,7 @@ import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as MediaLibrary from 'expo-media-library';
 import * as Sharing from 'expo-sharing';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
@@ -41,12 +42,13 @@ export default function ReceiptScreen({ navigation, route }: any) {
   const invoice   = route?.params?.invoice;
   const billRef   = useRef<any>(null);
   const [saving, setSaving] = useState(false);
+  const { t } = useLanguageStore();
 
   if (!invoice) {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.errorBox}>
-          <Text style={styles.errorText}>No invoice data found.</Text>
+          <Text style={styles.errorText}>{t('Noinvoice')}</Text>
           <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtnSm}>
             <Text style={styles.backBtnSmText}>Go Back</Text>
           </TouchableOpacity>
@@ -122,9 +124,9 @@ export default function ReceiptScreen({ navigation, route }: any) {
       {/* Top bar */}
       <View style={styles.topBar}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Text style={styles.backBtnText}>‹ Back</Text>
+          <Text style={styles.backBtnText}>‹ {t('back')}</Text>
         </TouchableOpacity>
-        <Text style={styles.topTitle}>Receipt</Text>
+        <Text style={styles.topTitle}>{t('receiptbill')}</Text>
         <View style={styles.topActions}>
           <TouchableOpacity style={styles.iconBtn} onPress={handleShare} disabled={saving}>
             <Text style={styles.iconBtnText}>📤</Text>
@@ -163,7 +165,7 @@ export default function ReceiptScreen({ navigation, route }: any) {
                 <Text style={styles.metaValue}>{invoiceNum}</Text>
               </View>
               <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>Date</Text>
+                <Text style={styles.metaLabel}>{t('date')}</Text>
                 <Text style={styles.metaValue}>{fmtDateTime(createdAt)}</Text>
               </View>
             </View>
@@ -172,7 +174,7 @@ export default function ReceiptScreen({ navigation, route }: any) {
 
             {/* Customer */}
             <View style={styles.customerBlock}>
-              <Text style={styles.blockLabel}>CUSTOMER</Text>
+              <Text style={styles.blockLabel}>{t('customers')}</Text>
               <Text style={styles.customerNameText}>{customerName}</Text>
               {customerPhone ? <Text style={styles.customerDetail}>{customerPhone}</Text> : null}
               {make ? (
@@ -214,18 +216,18 @@ export default function ReceiptScreen({ navigation, route }: any) {
             {/* Totals */}
             <View style={styles.totalsBlock}>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalLabel}>{t('subtotal')}</Text>
                 <Text style={styles.totalVal}>{fmtKip(subtotal)}</Text>
               </View>
               {discount > 0 && (
                 <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Discount</Text>
+                  <Text style={styles.totalLabel}>{t('discount')}</Text>
                   <Text style={[styles.totalVal, { color: '#059669' }]}>-{fmtKip(discount)}</Text>
                 </View>
               )}
               {taxAmount > 0 && (
                 <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Tax ({taxRate}%)</Text>
+                  <Text style={styles.totalLabel}>{t('tax')} ({taxRate}%)</Text>
                   <Text style={styles.totalVal}>{fmtKip(taxAmount)}</Text>
                 </View>
               )}
@@ -233,7 +235,7 @@ export default function ReceiptScreen({ navigation, route }: any) {
 
             {/* Grand total box */}
             <View style={styles.grandBox}>
-              <Text style={styles.grandLabel}>TOTAL</Text>
+              <Text style={styles.grandLabel}>{t('total')}</Text>
               <Text style={styles.grandAmt}>{fmtKip(total)}</Text>
             </View>
 
@@ -274,7 +276,7 @@ export default function ReceiptScreen({ navigation, route }: any) {
             ) : (
               <View style={styles.unpaidStampBox}>
                 <View style={styles.unpaidStamp}>
-                  <Text style={styles.unpaidStampText}>PAYMENT DUE</Text>
+                  <Text style={styles.unpaidStampText}>{t('paymentDue')}</Text>
                 </View>
                 <Text style={styles.unpaidStampSub}>Amount due: {fmtKip(total)}</Text>
               </View>
@@ -307,12 +309,12 @@ export default function ReceiptScreen({ navigation, route }: any) {
         {/* Bottom action buttons */}
         <View style={styles.bottomActions}>
           <TouchableOpacity style={styles.btnShare} onPress={handleShare} disabled={saving}>
-            <Text style={styles.btnShareText}>📤  Share Receipt</Text>
+            <Text style={styles.btnShareText}>📤 {t('ShareReceipt')}</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.btnSave} onPress={handleSave} disabled={saving}>
             {saving
               ? <ActivityIndicator color="#fff" />
-              : <Text style={styles.btnSaveText}>💾  Save to Photos</Text>
+              : <Text style={styles.btnSaveText}>💾  {t('saveToPhotos')}</Text>
             }
           </TouchableOpacity>
         </View>

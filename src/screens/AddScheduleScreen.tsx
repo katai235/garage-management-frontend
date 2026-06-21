@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLanguageStore } from '../store/languageStore';
 import {
   View, Text, StyleSheet, ScrollView, KeyboardAvoidingView,
   Platform, TouchableOpacity, Alert, TextInput
@@ -7,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { scheduleApi, customerApi, vehicleApi, authApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+
 
 const PRIORITY_OPTIONS = ['urgent', 'normal', 'low'];
 const PRIORITY_META: Record<string, { icon: string; label: string; color: string; bg: string }> = {
@@ -24,6 +26,7 @@ const getDefaultDate = () => {
 };
 
 export default function AddScheduleScreen({ navigation, route }: any) {
+  const { t } = useLanguageStore();
   const editingSchedule = route?.params?.schedule;
   const isEdit = !!editingSchedule;
 
@@ -155,7 +158,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backBtn}>‹ Back</Text>
+            <Text style={styles.backBtn}>‹ {t('back')}</Text>
           </TouchableOpacity>
           <Text style={styles.title}>{isEdit ? 'Edit Schedule' : 'Assign Work'}</Text>
           <View style={{ width: 50 }} />
@@ -165,7 +168,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
 
           {/* ── Assign To ── */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Assign To *</Text>
+            <Text style={styles.sectionTitle}>{t('assignedTo')} *</Text>
             <TouchableOpacity
               style={[styles.selectBtn, errors.assignedTo ? { borderColor: Colors.danger } : null]}
               onPress={() => { setShowStaffDrop(!showStaffDrop); setStaffSearch(''); }}
@@ -179,7 +182,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
                     <Text style={styles.selectText}>{form.assignedToName}</Text>
                   </View>
                 )
-                : <Text style={styles.placeholderText}>👷 Search staff or technician name...</Text>
+                : <Text style={styles.placeholderText}>{t('Searchstaffortechnicianname')}</Text>
               }
             </TouchableOpacity>
             {errors.assignedTo ? <Text style={styles.errText}>{errors.assignedTo}</Text> : null}
@@ -210,7 +213,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
                   </TouchableOpacity>
                 ))}
                 {staffList.length === 0 && staffSearch.length > 0 && (
-                  <Text style={styles.noResult}>No staff or technicians found</Text>
+                  <Text style={styles.noResult}>{t('Nostaffortechfound')}</Text>
                 )}
               </View>
             )}
@@ -218,17 +221,17 @@ export default function AddScheduleScreen({ navigation, route }: any) {
 
           {/* ── Work Details ── */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Work Details *</Text>
+            <Text style={styles.sectionTitle}>{t('Workdetail')} *</Text>
             <Input
-              label="Title *"
+              label={t('Title')}
               placeholder="e.g. Oil Change — Toyota Camry"
               value={form.title}
               onChangeText={set('title')}
               error={errors.title}
             />
             <Input
-              label="Description / Instructions"
-              placeholder="Detailed work instructions..."
+              label={t('DescriptionInstructions')}
+              placeholder={t('Detailedworkinstructions')}
               value={form.description}
               onChangeText={set('description')}
               multiline
@@ -238,7 +241,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
 
           {/* ── Priority ── */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Priority</Text>
+            <Text style={styles.sectionTitle}>{t('priority')}</Text>
             <View style={styles.priorityRow}>
               {PRIORITY_OPTIONS.map(p => {
                 const m = PRIORITY_META[p];
@@ -259,9 +262,9 @@ export default function AddScheduleScreen({ navigation, route }: any) {
 
           {/* ── Due Date & Time ── */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Due Date & Time</Text>
+            <Text style={styles.sectionTitle}>{t('DueDate')} & {t('DueTime')}</Text>
             <Input
-              label="Due Date *"
+              label={t('Duedatep')}
               placeholder="YYYY-MM-DD"
               value={form.dueDate}
               onChangeText={set('dueDate')}
@@ -269,7 +272,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
               error={errors.dueDate}
             />
             <Input
-              label="Due Time"
+              label={t('DueTime')}
               placeholder="HH:MM (e.g. 14:30)"
               value={form.dueTime}
               onChangeText={set('dueTime')}
@@ -279,25 +282,25 @@ export default function AddScheduleScreen({ navigation, route }: any) {
 
           {/* ── Customer (optional) ── */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Customer (Optional)</Text>
+            <Text style={styles.sectionTitle}>{t('CustomerOptional')}</Text>
             <TouchableOpacity
               style={styles.selectBtn}
               onPress={() => { setShowCustomerDrop(!showCustomerDrop); setCustomerSearch(''); }}
             >
               <Text style={form.customerName ? styles.selectText : styles.placeholderText}>
-                {form.customerName || '👤 Search customer...'}
+                {form.customerName || t('Searchcustomer')}
               </Text>
             </TouchableOpacity>
             {form.customerId && (
               <TouchableOpacity onPress={() => setForm(p => ({ ...p, customerId: '', customerName: '', vehicleId: '' }))} style={styles.clearBtn}>
-                <Text style={styles.clearBtnText}>✕ Clear customer</Text>
+                <Text style={styles.clearBtnText}>{t('Clearcustomer')}</Text>
               </TouchableOpacity>
             )}
             {showCustomerDrop && (
               <View style={styles.dropdown}>
                 <TextInput
                   style={styles.dropdownSearch}
-                  placeholder="Type name or phone..."
+                  placeholder={t('Typenameorphone')}
                   placeholderTextColor={Colors.textTertiary}
                   value={customerSearch}
                   onChangeText={(t) => { setCustomerSearch(t); searchCustomers(t); }}
@@ -344,8 +347,8 @@ export default function AddScheduleScreen({ navigation, route }: any) {
           {/* ── Notes ── */}
           <View style={[styles.card, Shadow.sm]}>
             <Input
-              label="Internal Notes (Optional)"
-              placeholder="Notes visible to assigned staff..."
+              label={t('option')} 
+              placeholder={t('Notesassignedstaff')}
               value={form.notes}
               onChangeText={set('notes')}
               multiline

@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { appointmentApi, customerApi, vehicleApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
+
 
 const SERVICE_TYPES = [
   'Oil Change','Brake Service','Tire Rotation',
@@ -25,6 +27,7 @@ const getDefaultDate = () => {
 };
 
 export default function AddAppointmentScreen({ navigation }: any) {
+  const { t } = useLanguageStore();
   const [customers, setCustomers] = useState<any[]>([]);
   const [vehicles, setVehicles] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
@@ -114,9 +117,9 @@ export default function AddAppointmentScreen({ navigation }: any) {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backBtn}>‹ Back</Text>
+            <Text style={styles.backBtn}>‹ {t('back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>New Appointment</Text>
+          <Text style={styles.title}>{t('addAppointment')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
@@ -124,13 +127,13 @@ export default function AddAppointmentScreen({ navigation }: any) {
 
           {/* Customer Selection */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Customer *</Text>
+            <Text style={styles.sectionTitle}>{t('customer')} *</Text>
             <TouchableOpacity
               style={[styles.selectBtn, errors.customer ? { borderColor: Colors.danger } : null]}
               onPress={() => { setShowSearch(!showSearch); if (!showSearch) setSearchQuery(''); }}
             >
               <Text style={form.customerName ? styles.selectText : styles.placeholderText}>
-                {form.customerName || '👤 Tap to search customer...'}
+                {form.customerName || t('Taptosearchcustomer')}
               </Text>
             </TouchableOpacity>
             {errors.customer ? <Text style={styles.errText}>{errors.customer}</Text> : null}
@@ -139,7 +142,7 @@ export default function AddAppointmentScreen({ navigation }: any) {
               <View style={styles.dropdown}>
                 <TextInput
                   style={styles.dropdownSearch}
-                  placeholder="Type customer name or phone..."
+                  placeholder={t('Typenameorphone')}
                   placeholderTextColor={Colors.textTertiary}
                   value={searchQuery}
                   onChangeText={(t) => { setSearchQuery(t); searchCustomers(t); }}
@@ -161,7 +164,7 @@ export default function AddAppointmentScreen({ navigation }: any) {
           {/* Vehicle Selection (optional) */}
           {form.customerId && vehicles.length > 0 && (
             <View style={[styles.card, Shadow.sm]}>
-              <Text style={styles.sectionTitle}>Vehicle (Optional)</Text>
+              <Text style={styles.sectionTitle}>{t('VehicleOptional')}</Text>
               <TouchableOpacity
                 style={[styles.vehicleItem, !form.vehicleId && styles.vehicleItemActive]}
                 onPress={() => set('vehicleId')('')}
@@ -187,7 +190,7 @@ export default function AddAppointmentScreen({ navigation }: any) {
 
           {/* Service Type */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Service Type *</Text>
+            <Text style={styles.sectionTitle}>{t('ServiceType')} *</Text>
             <View style={styles.chipGrid}>
               {SERVICE_TYPES.map(s => (
                 <TouchableOpacity
@@ -204,9 +207,9 @@ export default function AddAppointmentScreen({ navigation }: any) {
 
           {/* Date & Time */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Date & Time *</Text>
+            <Text style={styles.sectionTitle}>{t('datetime')} *</Text>
             <Input
-              label="Date *"
+              label={t('date')}
               placeholder="YYYY-MM-DD (e.g. 2026-05-20)"
               value={form.scheduledDate}
               onChangeText={set('scheduledDate')}
@@ -214,14 +217,14 @@ export default function AddAppointmentScreen({ navigation }: any) {
               error={errors.date}
             />
             <Input
-              label="Time *"
+              label={t('time')}
               placeholder="HH:MM (e.g. 09:00 or 14:30)"
               value={form.scheduledTime}
               onChangeText={set('scheduledTime')}
               keyboardType="numeric"
               error={errors.time}
             />
-            <Text style={styles.fieldLabel}>Duration</Text>
+            <Text style={styles.fieldLabel}>{t('duration')}</Text>
             <View style={styles.chipGrid}>
               {DURATIONS.map(d => (
                 <TouchableOpacity
@@ -248,7 +251,7 @@ export default function AddAppointmentScreen({ navigation }: any) {
           </View>
 
           <Button
-            title="📅 Book Appointment"
+            title={t('bookappointment')}
             onPress={handleSubmit}
             loading={loading}
             style={{ marginBottom: 40 }}

@@ -31,6 +31,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import ActiveSessionsScreen from '../screens/ActiveSessionsScreen';
 import PrivacyPolicyScreen from '../screens/PrivacyPolicyScreen';
 import SellPartsScreen from '../screens/SellPartsScreen';
+import RestockScreen from '../screens/RestockScreen';
 import AddInvoiceScreen from '../screens/AddInvoiceScreen';
 import AddVehicleScreen from '../screens/AddVehicleScreen';
 import RecordPaymentScreen from '../screens/RecordPaymentScreen';
@@ -39,6 +40,7 @@ import InvoiceViewScreen from '../screens/InvoiceViewScreen';
 import ReceiptScreen from '../screens/ReceiptScreen';
 import StockItemViewScreen from '../screens/StockItemViewScreen';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -356,6 +358,7 @@ function MainWithScreens({ navigation }: any) {
       <Stack.Screen name="ActiveSessions" component={ActiveSessionsScreen} />
       <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicyScreen} />
       <Stack.Screen name="SellParts" component={SellPartsScreen} />
+      <Stack.Screen name="RestockScreen" component={RestockScreen} />
       <Stack.Screen name="Receipt" component={ReceiptScreen} />
       <Stack.Screen name="StockItemView" component={StockItemViewScreen} />
       <Stack.Screen name="ManageUsers" component={RegisterScreen} options={{ presentation: 'modal' }} />
@@ -378,6 +381,7 @@ export default function AppNavigator() {
             <>
               <Stack.Screen name="Login" component={LoginScreen} />
               <Stack.Screen name="Register" component={RegisterScreen} options={{ presentation: 'modal' }} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
             </>
           ) : (
             <Stack.Screen name="Main" component={MainWithScreens} />

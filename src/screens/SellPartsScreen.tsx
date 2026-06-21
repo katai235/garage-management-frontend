@@ -1,7 +1,8 @@
+import { useLanguageStore } from '../store/languageStore';
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, FlatList, TouchableOpacity,
-  TextInput, Alert, RefreshControl, KeyboardAvoidingView, Platform
+  TextInput, Alert, RefreshControl, KeyboardAvoidingView, Platform, ScrollView
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,6 +27,7 @@ interface CartItem {
 }
 
 export default function SellPartsScreen({ navigation }: any) {
+  const { t } = useLanguageStore();
   const [step, setStep]                 = useState<'browse' | 'cart' | 'customer'>('browse');
   const [items, setItems]               = useState<any[]>([]);
   const [loading, setLoading]           = useState(true);
@@ -52,10 +54,14 @@ export default function SellPartsScreen({ navigation }: any) {
 
   useFocusEffect(useCallback(() => { fetchStock(); }, []));
 
+  const customerSearchSeq = React.useRef(0);
   const searchCustomers = async (q: string) => {
     if (q.length < 1) { setCustomers([]); return; }
+    const seq = ++customerSearchSeq.current;
     try {
       const res = await customerApi.getAll({ search: q });
+      // Ignore this result if a newer search has started since
+      if (seq !== customerSearchSeq.current) return;
       setCustomers(res.data.customers || []);
     } catch {}
   };
@@ -146,11 +152,11 @@ export default function SellPartsScreen({ navigation }: any) {
       }
 
       Alert.alert(
-        '✅ Sale Complete!',
+        t('saleComplete'),
         `${cartCount} item(s) sold. Invoice created.`,
         [
           {
-            text: 'View Receipt',
+            text: t('view') + ' Receipt',
             onPress: () => {
               setCart([]);
               setSelectedCustomer(null);
@@ -159,7 +165,7 @@ export default function SellPartsScreen({ navigation }: any) {
             },
           },
           {
-            text: 'View Invoice',
+            text: t('view') + ' Invoice',
             onPress: () => {
               setCart([]);
               setSelectedCustomer(null);
@@ -211,11 +217,11 @@ export default function SellPartsScreen({ navigation }: any) {
               <TouchableOpacity style={styles.qtyBtn} onPress={() => addToCart(item)}>
                 <Text style={styles.qtyBtnText}>+</Text>
               </TouchableOpacity>
-              <Text style={styles.inCartText}>in cart</Text>
+              <Text style={styles.inCartText}>{t('inCart')}</Text>
             </View>
           ) : (
             <TouchableOpacity style={styles.addBtn} onPress={() => addToCart(item)}>
-              <Text style={styles.addBtnText}>+ Add to Cart</Text>
+              <Text style={styles.addBtnText}>{t('addToCart')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -224,14 +230,22 @@ export default function SellPartsScreen({ navigation }: any) {
   };
 
   // ── BROWSE STEP ─────────────────────────────────────────────────────
-  const BrowseStep = () => (
+  // NOTE: this is a plain function that RETURNS JSX, not a component.
+  // Defining it as `const BrowseStep = () => (...)` and rendering
+  // <BrowseStep /> would make React treat it as a brand-new component
+  // type on every parent re-render (since the function reference changes
+  // every render), forcing React Native to unmount + remount the whole
+  // subtree — including the customer search dropdown's TextInput. That
+  // teardown mid-keystroke is what caused "Trying to add unknown view tag".
+  // Calling renderBrowseStep() directly avoids the remount entirely.
+  const renderBrowseStep = () => (
     <>
       <View style={styles.searchRow}>
         <View style={styles.searchBox}>
           <Text>🔍</Text>
           <TextInput
             style={styles.searchInput}
-            placeholder="Search parts..."
+            placeholder={t('Searchparts')}
             placeholderTextColor={Colors.textTertiary}
             value={search}
             onChangeText={setSearch}
@@ -253,7 +267,7 @@ export default function SellPartsScreen({ navigation }: any) {
             ListEmptyComponent={
               <View style={styles.emptyBox}>
                 <Text style={styles.emptyIcon}>📦</Text>
-                <Text style={styles.emptyTitle}>No items in stock</Text>
+                <Text style={styles.emptyTitle}>{t('noStockItems')}</Text>
               </View>
             }
           />
@@ -262,14 +276,14 @@ export default function SellPartsScreen({ navigation }: any) {
   );
 
   // ── CART STEP ────────────────────────────────────────────────────────
-  const CartStep = () => (
+  const renderCartStep = () => (
     <FlatList
       data={cart}
       keyExtractor={c => c.id}
       contentContainerStyle={styles.listContent}
       showsVerticalScrollIndicator={false}
       ListHeaderComponent={
-        <Text style={styles.cartHeader}>🛒 Cart ({cartCount} items)</Text>
+        <Text style={styles.cartHeader}>{t('cart')} ({cartCount} items)</Text>
       }
       renderItem={({ item: c }) => (
         <View style={[styles.cartCard, Shadow.sm]}>
@@ -295,7 +309,7 @@ export default function SellPartsScreen({ navigation }: any) {
       ListFooterComponent={
         <View style={styles.cartFooter}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalLabel}>{t('total')}</Text>
             <Text style={styles.totalValue}>{fmtKip(cartTotal)}</Text>
           </View>
           <TouchableOpacity style={styles.checkoutBtn} onPress={() => setStep('customer')}>
@@ -306,9 +320,9 @@ export default function SellPartsScreen({ navigation }: any) {
       ListEmptyComponent={
         <View style={styles.emptyBox}>
           <Text style={styles.emptyIcon}>🛒</Text>
-          <Text style={styles.emptyTitle}>Your cart is empty</Text>
+          <Text style={styles.emptyTitle}>{t('emptyCart')}</Text>
           <TouchableOpacity style={styles.browseBtn} onPress={() => setStep('browse')}>
-            <Text style={styles.browseBtnText}>Browse Parts</Text>
+            <Text style={styles.browseBtnText}>{t('browseParts')}</Text>
           </TouchableOpacity>
         </View>
       }
@@ -316,18 +330,17 @@ export default function SellPartsScreen({ navigation }: any) {
   );
 
   // ── CUSTOMER STEP ────────────────────────────────────────────────────
-  const CustomerStep = () => (
+  const renderCustomerStep = () => (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
-      <FlatList
-        data={[]}
-        renderItem={null}
+      <ScrollView
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={
+        showsVerticalScrollIndicator={false}
+      >
           <View>
             {/* Order summary */}
             <View style={[styles.summaryCard, Shadow.sm]}>
-              <Text style={styles.sectionTitle}>Order Summary</Text>
+              <Text style={styles.sectionTitle}>{t('orderSummary')}</Text>
               {cart.map(c => (
                 <View key={c.id} style={styles.summaryRow}>
                   <Text style={styles.summaryName} numberOfLines={1}>{c.name} × {c.quantity}</Text>
@@ -343,28 +356,28 @@ export default function SellPartsScreen({ navigation }: any) {
 
             {/* Customer selection */}
             <View style={[styles.customerCard, Shadow.sm]}>
-              <Text style={styles.sectionTitle}>Customer (Optional)</Text>
+              <Text style={styles.sectionTitle}>{t('CustomerOptional')}</Text>
               <TouchableOpacity
                 style={styles.selectBtn}
                 onPress={() => { setShowCustomerDrop(!showCustomerDrop); setCustomerSearch(''); }}
               >
                 <Text style={selectedCustomer ? styles.selectText : styles.placeholderText}>
-                  {selectedCustomer ? `👤 ${selectedCustomer.full_name || selectedCustomer.fullName}` : '👤 Search customer or skip...'}
+                  {selectedCustomer ? `👤 ${selectedCustomer.full_name || selectedCustomer.fullName}` : t('Searchcustomer')}
                 </Text>
               </TouchableOpacity>
               {selectedCustomer && (
                 <TouchableOpacity onPress={() => setSelectedCustomer(null)} style={styles.clearBtn}>
-                  <Text style={styles.clearBtnText}>✕ Remove customer</Text>
+                  <Text style={styles.clearBtnText}>{t('Removecustomer')}</Text>
                 </TouchableOpacity>
               )}
               {showCustomerDrop && (
                 <View style={styles.dropdown}>
                   <TextInput
                     style={styles.dropdownInput}
-                    placeholder="Type name or phone..."
+                    placeholder={t('Typenameorphone')}
                     placeholderTextColor={Colors.textTertiary}
                     value={customerSearch}
-                    onChangeText={t => { setCustomerSearch(t); searchCustomers(t); }}
+                    onChangeText={val => { setCustomerSearch(val); searchCustomers(val); }}
                     autoFocus
                   />
                   {customers.map(c => (
@@ -374,7 +387,7 @@ export default function SellPartsScreen({ navigation }: any) {
                     </TouchableOpacity>
                   ))}
                   {customers.length === 0 && customerSearch.length > 1 && (
-                    <Text style={styles.noResult}>No customers found</Text>
+                    <Text style={styles.noResult}>{t('noCustomers')}</Text>
                   )}
                 </View>
               )}
@@ -387,12 +400,11 @@ export default function SellPartsScreen({ navigation }: any) {
               disabled={checkingOut}
             >
               <Text style={styles.confirmBtnText}>
-                {checkingOut ? '⏳ Processing...' : `💳 Confirm Sale — ${fmtKip(cartTotal)}`}
+                {checkingOut ? '⏳ Processing...' : `${t('confirmSale')} — ${fmtKip(cartTotal)}`}
               </Text>
             </TouchableOpacity>
           </View>
-        }
-      />
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 
@@ -405,10 +417,10 @@ export default function SellPartsScreen({ navigation }: any) {
           else if (step === 'cart') setStep('browse');
           else navigation.goBack();
         }}>
-          <Text style={styles.backBtn}>‹ Back</Text>
+          <Text style={styles.backBtn}>‹ {t('back')}</Text>
         </TouchableOpacity>
         <Text style={styles.title}>
-          {step === 'browse' ? '🛒 Sell Parts' : step === 'cart' ? '🛒 Cart' : '💳 Checkout'}
+          {step === 'browse' ? t('sellPartsTitle') : step === 'cart' ? t('cart') : t('checkout')}
         </Text>
         {/* Cart badge — hidden on browse, replaced by floating button */}
         {step !== 'browse' && cart.length > 0 && (
@@ -430,15 +442,15 @@ export default function SellPartsScreen({ navigation }: any) {
               </Text>
             </View>
             <Text style={[styles.stepLabel, step === s && styles.stepLabelActive]}>
-              {s === 'browse' ? 'Browse' : s === 'cart' ? 'Cart' : 'Checkout'}
+              {s === 'browse' ? t('browse') : s === 'cart' ? t('cart') : t('checkout')}
             </Text>
           </View>
         ))}
       </View>
 
-      {step === 'browse'   && <BrowseStep />}
-      {step === 'cart'     && <CartStep />}
-      {step === 'customer' && <CustomerStep />}
+      {step === 'browse'   && renderBrowseStep()}
+      {step === 'cart'     && renderCartStep()}
+      {step === 'customer' && renderCustomerStep()}
       {/* Floating cart button - only on browse step */}
       {step === 'browse' && cart.length > 0 && (
         <TouchableOpacity style={styles.floatingCart} onPress={() => setStep('cart')} activeOpacity={0.9}>
@@ -446,7 +458,7 @@ export default function SellPartsScreen({ navigation }: any) {
             <View style={styles.floatingCartBadge}>
               <Text style={styles.floatingCartBadgeText}>{cartCount}</Text>
             </View>
-            <Text style={styles.floatingCartText}>View Cart</Text>
+            <Text style={styles.floatingCartText}>{t('viewCart')}</Text>
           </View>
           <Text style={styles.floatingCartTotal}>{fmtKip(cartTotal)}</Text>
         </TouchableOpacity>

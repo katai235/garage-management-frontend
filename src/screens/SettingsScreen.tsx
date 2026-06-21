@@ -5,6 +5,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../store/authStore';
+import { useLanguageStore } from '../store/languageStore';
+import LanguageToggle from '../components/LanguageToggle';
 import { RoleBadge } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
 
@@ -16,6 +18,7 @@ const NOTIF_KEYS = {
 
 export default function SettingsScreen({ navigation }: any) {
   const { user, logout } = useAuthStore();
+  const { t } = useLanguageStore();
   const [notifService, setNotifService] = useState(true);
   const [notifStock,   setNotifStock]   = useState(true);
   const [notifAppt,    setNotifAppt]    = useState(true);
@@ -45,9 +48,9 @@ export default function SettingsScreen({ navigation }: any) {
   const handleNotifAppt    = (v: boolean) => { setNotifAppt(v);    saveNotif(NOTIF_KEYS.appt,    v); };
 
   const handleLogout = () => {
-    Alert.alert('Sign Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign Out', style: 'destructive', onPress: () => logout() },
+    Alert.alert(t('signOut'), t('signOutConfirm'), [
+      { text: t('cancel'), style: 'cancel' },
+      { text: t('signOut'), style: 'destructive', onPress: () => logout() },
     ]);
   };
 
@@ -80,8 +83,8 @@ export default function SettingsScreen({ navigation }: any) {
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Settings</Text>
-          <Text style={styles.subtitle}>Manage your account and preferences</Text>
+          <Text style={styles.title}>{t('settings')}</Text>
+          <Text style={styles.subtitle}>{t('settingsSubtitle')}</Text>
         </View>
 
         {/* Profile Card */}
@@ -104,22 +107,22 @@ export default function SettingsScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>Account</Text>
           <View style={[styles.settingGroup, Shadow.sm]}>
             <SettingRow
-              icon="👤" label="Edit Profile"
-              subtitle="Update your personal information"
+              icon="👤" label={t("editProfile")}
+              subtitle={t("editProfileSub")}
               onPress={() => navigation.navigate('Profile')}
             />
             <View style={styles.separator} />
             <SettingRow
-              icon="🔒" label="Change Password"
-              subtitle="Update your password"
+              icon="🔒" label={t("changePassword")}
+              subtitle={t("changePasswordSub")}
               onPress={() => navigation.navigate('ChangePassword')}
             />
             {(user?.role === 'admin' || user?.role === 'manager') && (
               <>
                 <View style={styles.separator} />
                 <SettingRow
-                  icon="👥" label="Manage Users"
-                  subtitle="Add and manage team accounts"
+                  icon="👥" label={t("manageUsers")}
+                  subtitle={t("manageUsersSub")}
                   onPress={() => navigation.navigate('ManageUsers')}
                 />
               </>
@@ -132,8 +135,8 @@ export default function SettingsScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>Notifications</Text>
           <View style={[styles.settingGroup, Shadow.sm]}>
             <SettingRow
-              icon="🔧" label="Service Updates"
-              subtitle="Get notified on service status changes"
+              icon="🔧" label={t("serviceUpdates")}
+              subtitle={t("serviceUpdatesSub")}
               showArrow={false}
               rightEl={
                 <Switch value={notifService} onValueChange={handleNotifService}
@@ -142,8 +145,8 @@ export default function SettingsScreen({ navigation }: any) {
             />
             <View style={styles.separator} />
             <SettingRow
-              icon="📦" label="Low Stock Alerts"
-              subtitle="Alert when items reach reorder level"
+              icon="📦" label={t("lowStockAlerts")}
+              subtitle={t("lowStockAlertsSub")}
               showArrow={false}
               rightEl={
                 <Switch value={notifStock} onValueChange={handleNotifStock}
@@ -152,8 +155,8 @@ export default function SettingsScreen({ navigation }: any) {
             />
             <View style={styles.separator} />
             <SettingRow
-              icon="📅" label="Appointment Reminders"
-              subtitle="Remind about upcoming appointments"
+              icon="📅" label={t("appointmentReminders")}
+              subtitle={t("appointmentRemindersSub")}
               showArrow={false}
               rightEl={
                 <Switch value={notifAppt} onValueChange={handleNotifAppt}
@@ -168,8 +171,8 @@ export default function SettingsScreen({ navigation }: any) {
           <Text style={styles.sectionTitle}>Security</Text>
           <View style={[styles.settingGroup, Shadow.sm]}>
             <SettingRow
-              icon="📱" label="Active Sessions"
-              subtitle="Manage logged-in devices"
+              icon="📱" label={t("activeSessions")}
+              subtitle={t("activeSessionsSub")}
               onPress={() => navigation.navigate('ActiveSessions')}
             />
           </View>
@@ -177,18 +180,25 @@ export default function SettingsScreen({ navigation }: any) {
 
         {/* About */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>About</Text>
+          <Text style={styles.sectionTitle}>{t('about')}</Text>
           <View style={[styles.settingGroup, Shadow.sm]}>
             <SettingRow
-              icon="ℹ️" label="App Version"
+              icon="ℹ️" label={t('appVersion')}
               subtitle="Sam Saen Thai KT Lo,. Co GMS"
               showArrow={false}
               rightEl={<Text style={styles.versionText}>v1.0.0</Text>}
             />
             <View style={styles.separator} />
             <SettingRow
-              icon="📄" label="Privacy Policy"
+              icon="📄" label={t('privacyPolicy')}
               onPress={() => navigation.navigate('PrivacyPolicy')}
+            />
+            <View style={styles.separator} />
+            <SettingRow
+              icon="🌐" label={t('language')}
+              subtitle="English / ພາສາລາວ"
+              showArrow={false}
+              rightEl={<LanguageToggle />}
             />
           </View>
         </View>
@@ -197,7 +207,7 @@ export default function SettingsScreen({ navigation }: any) {
         <View style={styles.section}>
           <TouchableOpacity style={[styles.logoutBtn, Shadow.sm]} onPress={handleLogout}>
             <Text style={styles.logoutIcon}>🚪</Text>
-            <Text style={styles.logoutText}>Sign Out</Text>
+            <Text style={styles.logoutText}>{t('signOut')}</Text>
           </TouchableOpacity>
         </View>
 

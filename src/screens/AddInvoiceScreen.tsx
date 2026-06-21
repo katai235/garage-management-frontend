@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { invoiceApi, customerApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 interface LineItem { id: string; description: string; quantity: string; unitPrice: string; type: string; }
 
@@ -13,6 +14,7 @@ export default function AddInvoiceScreen({ navigation, route }: any) {
   const [customerSearch, setCustomerSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { t } = useLanguageStore();
   const prefill = route?.params || {};
   const [form, setForm] = useState({
     customerId: prefill.customerId || '',
@@ -107,21 +109,21 @@ export default function AddInvoiceScreen({ navigation, route }: any) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}><Text style={styles.backBtn}>‹ Back</Text></TouchableOpacity>
-          <Text style={styles.title}>New Invoice</Text>
+          <Text style={styles.title}>{t('addInvoice')}</Text>
           <View style={{ width: 50 }} />
         </View>
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
           {/* Customer */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Customer *</Text>
+            <Text style={styles.sectionTitle}>{`${t('customers')} *`}</Text>
             <TouchableOpacity style={[styles.selectBtn, errors.customer ? { borderColor: Colors.danger } : null]} onPress={() => setShowCustomerSearch(!showCustomerSearch)}>
-              <Text style={form.customerName ? styles.selectText : styles.placeholderText}>{form.customerName || 'Tap to search customer...'}</Text>
+              <Text style={form.customerName ? styles.selectText : styles.placeholderText}>{form.customerName || t('Searchcustomer')}</Text>
             </TouchableOpacity>
             {errors.customer ? <Text style={styles.errorText}>{errors.customer}</Text> : null}
             {showCustomerSearch && (
               <View style={styles.dropdown}>
-                <TextInput style={styles.dropdownInput} placeholder="Type name or phone..." placeholderTextColor={Colors.textTertiary} value={customerSearch} onChangeText={(t) => { setCustomerSearch(t); searchCustomers(t); }} autoFocus />
+                <TextInput style={styles.dropdownInput} placeholder={t('Typenameorphone')} placeholderTextColor={Colors.textTertiary} value={customerSearch} onChangeText={(t) => { setCustomerSearch(t); searchCustomers(t); }} autoFocus />
                 {customers.map(c => (
                   <TouchableOpacity key={c.id} style={styles.dropdownItem} onPress={() => selectCustomer(c)}>
                     <Text style={styles.dropdownItemName}>{c.full_name || c.fullName}</Text>
@@ -135,7 +137,7 @@ export default function AddInvoiceScreen({ navigation, route }: any) {
 
           {/* Line Items */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Line Items *</Text>
+            <Text style={styles.sectionTitle}>{`${t('lineItems')} *`}</Text>
             {errors.items ? <Text style={[styles.errorText, { marginBottom: 8 }]}>{errors.items}</Text> : null}
             {items.map((item, index) => (
               <View key={item.id} style={styles.lineItem}>
@@ -154,55 +156,55 @@ export default function AddInvoiceScreen({ navigation, route }: any) {
                     </TouchableOpacity>
                   ))}
                 </View>
-                <Input label="Description *" placeholder="e.g. Oil Change Service" value={item.description} onChangeText={v => updateItem(item.id, 'description', v)} />
+                <Input label={`${t('description')} *`} placeholder="e.g. Oil Change Service" value={item.description} onChangeText={v => updateItem(item.id, 'description', v)} />
                 <View style={styles.row}>
                   <View style={{ flex: 1 }}>
-                    <Input label="Qty" placeholder="1" value={item.quantity} onChangeText={v => updateItem(item.id, 'quantity', v)} keyboardType="decimal-pad" />
+                    <Input label={t('qty')} placeholder="1" value={item.quantity} onChangeText={v => updateItem(item.id, 'quantity', v)} keyboardType="decimal-pad" />
                   </View>
                   <View style={{ flex: 2 }}>
-                    <Input label="Unit Price (₭) *" placeholder="0.00" value={item.unitPrice} onChangeText={v => updateItem(item.id, 'unitPrice', v)} keyboardType="decimal-pad" />
+                    <Input label={`${t('unitPrice')} (₭) *`} placeholder="0.00" value={item.unitPrice} onChangeText={v => updateItem(item.id, 'unitPrice', v)} keyboardType="decimal-pad" />
                   </View>
                 </View>
                 <View style={styles.itemTotal}>
-                  <Text style={styles.itemTotalLabel}>Subtotal:</Text>
+                  <Text style={styles.itemTotalLabel}>{t('subtotal')}:</Text>
                   <Text style={styles.itemTotalValue}>{formatCurrency((parseFloat(item.quantity) || 0) * (parseFloat(item.unitPrice) || 0))}</Text>
                 </View>
               </View>
             ))}
             <TouchableOpacity style={styles.addItemBtn} onPress={addItem}>
-              <Text style={styles.addItemBtnText}>+ Add Another Item</Text>
+              <Text style={styles.addItemBtnText}>{t('addItem2')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Summary */}
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Summary</Text>
+            <Text style={styles.sectionTitle}>{t('summary')}</Text>
             <View style={styles.row}>
               <View style={{ flex: 1 }}>
-                <Input label="Tax Rate (%)" placeholder="7" value={form.taxRate} onChangeText={t => setForm(p => ({ ...p, taxRate: t }))} keyboardType="decimal-pad" />
+                <Input label={t('TaxRate')} placeholder="7" value={form.taxRate} onChangeText={t => setForm(p => ({ ...p, taxRate: t }))} keyboardType="decimal-pad" />
               </View>
               <View style={{ flex: 1 }}>
-                <Input label="Discount ($)" placeholder="0.00" value={form.discountAmount} onChangeText={t => setForm(p => ({ ...p, discountAmount: t }))} keyboardType="decimal-pad" />
+                <Input label={`${t('discount')} (₭)`} placeholder="0.00" value={form.discountAmount} onChangeText={t => setForm(p => ({ ...p, discountAmount: t }))} keyboardType="decimal-pad" />
               </View>
             </View>
-            <Input label="Due Date (YYYY-MM-DD)" placeholder="Optional" value={form.dueDate} onChangeText={t => setForm(p => ({ ...p, dueDate: t }))} keyboardType="numeric" />
+            <Input label={`${t('DueDate')} (YYYY-MM-DD)`} placeholder="Optional" value={form.dueDate} onChangeText={t => setForm(p => ({ ...p, dueDate: t }))} keyboardType="numeric" />
             <View style={styles.totalBox}>
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Subtotal</Text>
+                <Text style={styles.totalLabel}>{t('subtotal')}</Text>
                 <Text style={styles.totalValue}>{formatCurrency(getSubtotal())}</Text>
               </View>
               {parseFloat(form.discountAmount) > 0 && (
                 <View style={styles.totalRow}>
-                  <Text style={styles.totalLabel}>Discount</Text>
+                  <Text style={styles.totalLabel}>{t('discount')}</Text>
                   <Text style={[styles.totalValue, { color: Colors.success }]}>-{formatCurrency(parseFloat(form.discountAmount) || 0)}</Text>
                 </View>
               )}
               <View style={styles.totalRow}>
-                <Text style={styles.totalLabel}>Tax ({form.taxRate}%)</Text>
+                <Text style={styles.totalLabel}>{t('tax')} ({form.taxRate}%)</Text>
                 <Text style={styles.totalValue}>{formatCurrency((getSubtotal() - (parseFloat(form.discountAmount) || 0)) * ((parseFloat(form.taxRate) || 0) / 100))}</Text>
               </View>
               <View style={[styles.totalRow, styles.grandTotalRow]}>
-                <Text style={styles.grandTotalLabel}>Total</Text>
+                <Text style={styles.grandTotalLabel}>{t('total')}</Text>
                 <Text style={styles.grandTotalValue}>{formatCurrency(getTotal())}</Text>
               </View>
             </View>
@@ -210,10 +212,10 @@ export default function AddInvoiceScreen({ navigation, route }: any) {
 
           {/* Notes */}
           <View style={[styles.card, Shadow.sm]}>
-            <Input label="Notes" placeholder="Invoice notes..." value={form.notes} onChangeText={t => setForm(p => ({ ...p, notes: t }))} multiline numberOfLines={3} />
+            <Input label={t('notes')} placeholder="Invoice notes..." value={form.notes} onChangeText={t => setForm(p => ({ ...p, notes: t }))} multiline numberOfLines={3} />
           </View>
 
-          <Button title="Create Invoice" onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
+          <Button title={t('createInvoice')} onPress={handleSubmit} loading={loading} style={{ marginBottom: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>

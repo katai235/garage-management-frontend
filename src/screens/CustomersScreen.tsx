@@ -10,6 +10,7 @@ import { StatusBadge, EmptyState, LoadingState, Button } from '../components/UI'
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
 import { usePermissions } from '../hooks/usePermissions';
 import { Customer } from '../types';
+import { useLanguageStore } from '../store/languageStore';
 
 const formatCurrency = (v: number) => {
   if (!v || isNaN(v)) return '₭0';
@@ -37,6 +38,7 @@ export default function CustomersScreen({ navigation }: any) {
   const [refreshing, setRefreshing] = useState(false);
   const [search, setSearch] = useState('');
   const { can } = usePermissions();
+  const { t } = useLanguageStore();
 
   const fetchCustomers = async (searchTerm = search) => {
     try {
@@ -62,8 +64,8 @@ export default function CustomersScreen({ navigation }: any) {
 
   const handleDelete = (customer: Customer) => {
     Alert.alert(
-      'Delete Customer',
-      `Are you sure you want to delete ${customer.fullName}? This cannot be undone.`,
+      t('deleteCustomer'),
+      `${t('deleteCustomerMsg')}`,
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -73,7 +75,7 @@ export default function CustomersScreen({ navigation }: any) {
               await customerApi.update(customer.id, { status: 'inactive' });
               fetchCustomers();
             } catch {
-              Alert.alert('Error', 'Failed to delete customer');
+              Alert.alert(t('error'), t('error'));
             }
           }
         }
@@ -104,18 +106,18 @@ export default function CustomersScreen({ navigation }: any) {
 
       <View style={styles.cardFooter}>
         <View style={styles.footerItem}>
-          <Text style={styles.footerLabel}>Total Spent</Text>
+          <Text style={styles.footerLabel}>{t('totalSpent')}</Text>
           <Text style={styles.footerValue}>{formatCurrency(item.totalSpent || 0)}</Text>
         </View>
         {item.vehicleCount !== undefined && (
           <View style={styles.footerItem}>
-            <Text style={styles.footerLabel}>Vehicles</Text>
+            <Text style={styles.footerLabel}>{t('vehicle')}</Text>
             <Text style={styles.footerValue}>{item.vehicleCount}</Text>
           </View>
         )}
         {item.lastVisit ? (
           <View style={styles.footerItem}>
-            <Text style={styles.footerLabel}>Last Visit</Text>
+            <Text style={styles.footerLabel}>{t('lastVisit')}</Text>
             <Text style={styles.footerDate}>{formatDate(item.lastVisit)}</Text>
           </View>
         ) : null}
@@ -128,14 +130,14 @@ export default function CustomersScreen({ navigation }: any) {
             style={[styles.actionBtn, { backgroundColor: Colors.primaryAlpha }]}
             onPress={() => navigation.navigate('EditCustomer', { customer: item })}
           >
-            <Text style={[styles.actionBtnText, { color: Colors.primary }]}>✏️ Edit</Text>
+            <Text style={[styles.actionBtnText, { color: Colors.primary }]}>✏️ {t('edit')}</Text>
           </TouchableOpacity>
           {can('customers.delete') && (
             <TouchableOpacity
               style={[styles.actionBtn, { backgroundColor: Colors.dangerLight }]}
               onPress={() => handleDelete(item)}
             >
-              <Text style={[styles.actionBtnText, { color: Colors.danger }]}>🗑️ Delete</Text>
+              <Text style={[styles.actionBtnText, { color: Colors.danger }]}>🗑️ {t('delete')}</Text>
             </TouchableOpacity>
           )}
         </View>
@@ -149,11 +151,11 @@ export default function CustomersScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <View>
-          <Text style={styles.title}>Customers</Text>
-          <Text style={styles.subtitle}>Manage customer information</Text>
+          <Text style={styles.title}>{t('customers')}</Text>
+          <Text style={styles.subtitle}>{t('customersSubtitle')}</Text>
         </View>
         {can('customers.create') && (
-          <Button title="+ Add" onPress={() => navigation.navigate('AddCustomer')} size="sm" />
+          <Button title={t('add')} onPress={() => navigation.navigate('AddCustomer')} size="sm" />
         )}
       </View>
 
@@ -179,7 +181,7 @@ export default function CustomersScreen({ navigation }: any) {
           <Text>🔍</Text>
           <TextInput
             style={styles.searchText}
-            placeholder="Search by name, email, phone..."
+            placeholder={t('search')}
             placeholderTextColor={Colors.textTertiary}
             value={search}
             onChangeText={setSearch}
@@ -205,9 +207,9 @@ export default function CustomersScreen({ navigation }: any) {
         }
         ListEmptyComponent={
           <EmptyState
-            icon="👥" title="No customers found"
-            subtitle="Add your first customer to get started"
-            actionLabel={can('customers.create') ? '+ Add Customer' : undefined}
+            icon="👥" title={t('noCustomers')}
+            subtitle={t('addFirstCustomer')}
+            actionLabel={can('customers.create') ? t('addCustomer') : undefined}
             onAction={can('customers.create') ? () => navigation.navigate('AddCustomer') : undefined}
           />
         }

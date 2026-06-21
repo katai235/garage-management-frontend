@@ -7,11 +7,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { customerApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { useLanguageStore } from '../store/languageStore';
 
 export default function AddCustomerScreen({ navigation, route }: any) {
   // Support both Add and Edit modes
   const existingCustomer = route?.params?.customer;
   const isEditing = !!existingCustomer;
+  const { t } = useLanguageStore();
 
   const [form, setForm] = useState({
     fullName: existingCustomer?.fullName || existingCustomer?.full_name || '',
@@ -76,17 +78,17 @@ export default function AddCustomerScreen({ navigation, route }: any) {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={styles.backBtn}>‹ Back</Text>
+            <Text style={styles.backBtn}>‹ {t('back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>{isEditing ? 'Edit Customer' : 'Add Customer'}</Text>
+          <Text style={styles.title}>{isEditing ? t('editCustomer') : t('addCustomer')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Personal Information</Text>
+            <Text style={styles.sectionTitle}>{t('personalInfo')}</Text>
             <Input
-              label="Full Name *"
+              label={`${t('fullName')} *`}
               placeholder="John Doe"
               value={form.fullName}
               onChangeText={set('fullName')}
@@ -95,7 +97,7 @@ export default function AddCustomerScreen({ navigation, route }: any) {
               autoCapitalize="words"
             />
             <Input
-              label="Phone Number *"
+              label={`${t('customerPhone')} *`}
               placeholder="(555) 123-4567"
               value={form.phone}
               onChangeText={set('phone')}
@@ -104,7 +106,7 @@ export default function AddCustomerScreen({ navigation, route }: any) {
               keyboardType="phone-pad"
             />
             <Input
-              label="Email Address"
+              label={t('customerEmail')}
               placeholder="customer@example.com"
               value={form.email}
               onChangeText={set('email')}
@@ -114,7 +116,7 @@ export default function AddCustomerScreen({ navigation, route }: any) {
               autoCapitalize="none"
             />
             <Input
-              label="Address"
+              label={t('customerAddress')}
               placeholder="123 Main St, City, State ZIP"
               value={form.address}
               onChangeText={set('address')}
@@ -124,9 +126,9 @@ export default function AddCustomerScreen({ navigation, route }: any) {
           </View>
 
           <View style={[styles.card, Shadow.sm]}>
-            <Text style={styles.sectionTitle}>Additional Notes</Text>
+            <Text style={styles.sectionTitle}>{t('AdditionalNotes')}</Text>
             <Input
-              label="Notes"
+              label={t('notes')}
               placeholder="Any special notes about this customer..."
               value={form.notes}
               onChangeText={set('notes')}
@@ -136,7 +138,7 @@ export default function AddCustomerScreen({ navigation, route }: any) {
           </View>
 
           <Button
-            title={isEditing ? 'Save Changes' : 'Add Customer'}
+            title={isEditing ? t('saveChanges') : t('addCustomer')}
             onPress={handleSubmit}
             loading={loading}
             style={{ marginBottom: 40 }}

@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { stockApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
@@ -113,39 +114,58 @@ export default function AddStockItemScreen({ navigation, route }: any) {
     if (!validate()) return;
     setLoading(true);
     try {
-      // A "new" image is one picked from camera/library on this device —
-      // these come back as file:// URIs on iOS, but Android gallery pickers
-      // can also return content:// URIs. Anything that isn't an http(s) URL
-      // (i.e. not an image already hosted on the server from a previous save)
-      // counts as new and needs to be uploaded.
-      const hasNewImage = !!imageUri && !imageUri.startsWith('http');
+      // Only treat as a new image if it's actually a local device URI.
+      // Existing server images come back as relative paths (/uploads/...)
+      // or full http URLs — neither should trigger an upload.
+      const hasNewImage = !!imageUri && (
+        imageUri.startsWith('file://') ||
+        imageUri.startsWith('content://')
+      );
 
       if (hasNewImage) {
-        const formData = new FormData();
-        formData.append('name',         form.name);
-        formData.append('sku',          form.sku.toUpperCase());
-        formData.append('category',     form.category);
-        formData.append('supplier',     form.supplier);
-        formData.append('reorderLevel', String(parseInt(form.reorderLevel) || 10));
-        formData.append('costPrice',    String(parseFloat(form.costPrice)));
-        formData.append('sellingPrice', String(parseFloat(form.sellingPrice)));
-        formData.append('location',     form.location);
-        formData.append('notes',        form.notes);
-        if (!isEditing) formData.append('quantity', String(parseInt(form.quantity)));
+        // Resolve content:// → file:// so the native uploader can read it
+        let uploadUri = imageUri!;
+        if (!uploadUri.startsWith('file://')) {
+          const dest = FileSystem.cacheDirectory + `stock_${Date.now()}.jpg`;
+          await FileSystem.copyAsync({ from: uploadUri, to: dest });
+          uploadUri = dest;
+        }
 
-        const filename  = imageUri!.split('/').pop() || 'photo.jpg';
-        const extension = filename.split('.').pop()?.toLowerCase() || 'jpg';
-        const mimeType  = extension === 'png' ? 'image/png' : 'image/jpeg';
-        formData.append('image', { uri: imageUri, name: filename, type: mimeType } as any);
+        // Read the auth token directly — FileSystem.uploadAsync bypasses axios
+        const SecureStore = await import('expo-secure-store');
+        const token = await SecureStore.getItemAsync('accessToken');
+        if (!token) throw new Error('Not logged in. Please log out and back in.');
 
-        // Use the shared axios client (stockApi) instead of a manual fetch().
-        // It already handles the base URL, the auth header (via the request
-        // interceptor in api.ts), and token refresh consistently with every
-        // other screen — no need to re-read SecureStore or rebuild the URL here.
-        if (isEditing) {
-          await stockApi.updateWithImage(existingItem.id, formData);
-        } else {
-          await stockApi.createWithImage(formData);
+        const API_BASE = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+        const url = isEditing
+          ? `${API_BASE}/stock/${existingItem.id}`
+          : `${API_BASE}/stock`;
+
+        // FileSystem.uploadAsync uses the native HTTP stack with proper
+        // multipart boundary handling — far more reliable than axios/fetch
+        // for FormData uploads on Android.
+        const result = await FileSystem.uploadAsync(url, uploadUri, {
+          httpMethod:  isEditing ? 'PUT' : 'POST',
+          uploadType:  FileSystem.FileSystemUploadType.MULTIPART,
+          fieldName:   'image',
+          headers:     { Authorization: `Bearer ${token}` },
+          parameters:  {
+            name:         form.name,
+            sku:          form.sku.toUpperCase(),
+            category:     form.category,
+            supplier:     form.supplier,
+            reorderLevel: String(parseInt(form.reorderLevel) || 10),
+            costPrice:    String(parseFloat(form.costPrice)),
+            sellingPrice: String(parseFloat(form.sellingPrice)),
+            location:     form.location,
+            notes:        form.notes,
+            ...(!isEditing ? { quantity: String(parseInt(form.quantity)) } : {}),
+          },
+        });
+
+        if (result.status >= 400) {
+          const body = JSON.parse(result.body || '{}');
+          throw new Error(body?.error || `Upload failed (${result.status})`);
         }
       } else {
         // No new image — use regular JSON

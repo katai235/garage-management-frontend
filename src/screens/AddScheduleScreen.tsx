@@ -160,7 +160,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.backBtn}>‹ {t('back')}</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>{isEdit ? 'Edit Schedule' : 'Assign Work'}</Text>
+          <Text style={styles.title}>{isEdit ? t('editSchedule') : t('assignWork')}</Text>
           <View style={{ width: 50 }} />
         </View>
 
@@ -357,7 +357,7 @@ export default function AddScheduleScreen({ navigation, route }: any) {
           </View>
 
           <Button
-            title={isEdit ? '💾 Save Changes' : '📋 Assign Work'}
+            title={isEdit ?  t('saveChanges') :  `📋${t('assignWork')}`}
             onPress={handleSubmit}
             loading={loading}
             style={{ marginBottom: 40 }}

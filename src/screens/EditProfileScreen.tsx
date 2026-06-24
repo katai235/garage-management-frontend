@@ -124,7 +124,7 @@ export default function EditProfileScreen({ navigation }: any) {
             </View>
 
             <Button
-              title={`💾 ${t('saveChanges')}`}
+              title={t('saveChanges')}
               onPress={handleSave}
               loading={loading}
               style={{ marginTop: Spacing.md }}

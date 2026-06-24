@@ -132,13 +132,17 @@ export const stockApi = {
   getAll:          (params?: any)              => api.get('/stock', { params }),
   create:          (data: any)                 => api.post('/stock', data),
   createWithImage: (formData: FormData)        => api.post('/stock', formData, {
-    headers: { 'Content-Type': undefined }, // Let React Native set boundary automatically
-    transformRequest: (d: any) => d,        // Skip JSON.stringify for FormData
+    transformRequest: (data: any, headers: any) => {
+      if (headers) delete headers['Content-Type'];
+      return data;
+    },
   }),
   update:          (id: string, data: any)     => api.put(`/stock/${id}`, data),
   updateWithImage: (id: string, formData: FormData) => api.put(`/stock/${id}`, formData, {
-    headers: { 'Content-Type': undefined },
-    transformRequest: (d: any) => d,
+    transformRequest: (data: any, headers: any) => {
+      if (headers) delete headers['Content-Type'];
+      return data;
+    },
   }),
   delete:          (id: string)                => api.delete(`/stock/${id}`),
   adjust:          (id: string, data: any)     => api.patch(`/stock/${id}/adjust`, data),

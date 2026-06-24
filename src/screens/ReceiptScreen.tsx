@@ -248,7 +248,7 @@ export default function ReceiptScreen({ navigation, route }: any) {
                 </View>
                 {!isPaid && (
                   <View style={styles.totalRow}>
-                    <Text style={[styles.totalLabel, { fontWeight: '600' }]}>Balance Due</Text>
+                    <Text style={[styles.totalLabel, { fontWeight: '600' }]}>{t('balanceDue')}</Text>
                     <Text style={[styles.totalVal, { color: '#dc2626', fontWeight: '700' }]}>{fmtKip(balance)}</Text>
                   </View>
                 )}
@@ -262,14 +262,14 @@ export default function ReceiptScreen({ navigation, route }: any) {
               <View style={styles.paidStampBox}>
                 <View style={styles.paidStamp}>
                   <Text style={styles.paidStampCheck}>✓</Text>
-                  <Text style={styles.paidStampText}>PAID</Text>
+                  <Text style={styles.paidStampText}>{t('paid')}</Text>
                 </View>
                 <Text style={styles.paidStampSub}>Payment received in full</Text>
               </View>
             ) : isPartial ? (
               <View style={styles.partialStampBox}>
                 <View style={styles.partialStamp}>
-                  <Text style={styles.partialStampText}>PARTIAL PAYMENT</Text>
+                  <Text style={styles.partialStampText}>{t('partialPayment')}</Text>
                 </View>
                 <Text style={styles.partialStampSub}>Balance of {fmtKip(balance)} remaining</Text>
               </View>

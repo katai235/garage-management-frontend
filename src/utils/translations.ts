@@ -358,7 +358,7 @@ export const translations = {
     emptyCart:          'Your cart is empty',
     browseParts:        'Browse Parts',
     inCart:             'in cart',
-    
+    Continuecheck:      'Continue to Checkout →',
 
     // ── Privacy Policy ───────────────────────────────────────────────
     privacyPolicyTitle: 'Privacy Policy',
@@ -467,6 +467,63 @@ export const translations = {
   qtyToAddPlaceholder: 'Qty to add',
   allStockGood: 'All stock levels are good!',
   noItemsNeedRestock: 'No items need restocking right now.',
+
+    // SellPartsScreen
+  maxQuantity:          'Max Quantity',
+  onlyUnitsAvailable:   'Only {n} units available.',   // replace {n} at runtime
+  emptyCartTitle:       'Empty Cart',
+  addItemsFirst:        'Add items to cart first.',
+  stockWarning:         '⚠️ Stock Warning',
+  itemsSoldInvoiceCreated: '{n} item(s) sold. Invoice created.',  // replace {n}
+  checkoutFailed:       'Checkout failed. Please try again.',
+  lowBadge:             '⚠️ Low',
+  leftInStock:          'left',           // "{qty} left"
+  eachUnit:             'each',           // "{price} each"
+  continueToCheckout:   'Continue to Checkout →',
+  processing:           '⏳ Processing...',
+  totalLabel:           'Total',          // used inline in cart summary (already have t('total') — reuse that)
+
+  // RecordPaymentScreen
+  invoiceNotFound:      'Invoice not found',
+  enterValidAmount:     'Please enter a valid payment amount',
+  amountExceedsBalance: 'Amount cannot exceed balance of {amount}',  // replace {amount}
+  failedRecordPayment:  'Failed to record payment',
+  paymentRecorded:      '✅ Payment Recorded!',
+  paymentRecordedMsg:   '{amount} received via {method}.\nInvoice status: {status}',
+  doneBtn:              'Done',
+
+  // AddCustomerScreen
+  phoneRequired:        'Phone number is required',
+  invalidEmailAddress:  'Invalid email address',
+  customerUpdated:      'Customer updated successfully!',
+  customerAdded:        'Customer added successfully!',
+  viewCustomer:         'View Customer',
+  failedUpdateCustomer: 'Failed to update customer',
+  failedAddCustomer:    'Failed to add customer',
+
+  // AddAppointmentScreen
+  selectCustomerError:  'Please select a customer',
+  selectServiceError:   'Please select a service type',
+  dateFormatError:      'Enter date as YYYY-MM-DD',
+  timeFormatError:      'Enter time as HH:MM',
+  appointmentBooked:    '✅ Appointment Booked!',
+  appointmentBookedMsg: 'Appointment for {name} on {date} at {time} has been created.',
+  failedCreateAppt:     'Failed to create appointment. Please try again.',
+  noSpecificVehicle:    'No specific vehicle',
+  notesOptionalLabel:   'Notes (Optional)',
+
+  // AddInvoiceScreen
+  selectCustomerRequired: 'Please select a customer',  // same as selectCustomerError — REUSE
+  itemsNeedDescPrice:   'All items need a description and price',
+  invoiceCreated:       'Invoice created!',
+  failedCreateInvoice:  'Failed to create invoice',
+
+  // AddVehicleScreen
+  makeRequired:         'Make is required',
+  modelRequired:        'Model is required',
+  licensePlateRequired: 'License plate is required',
+  vehicleRegistered:    'Vehicle registered successfully!',
+  failedRegisterVehicle:'Failed to register vehicle',
   },
 
   lo: {
@@ -825,6 +882,7 @@ export const translations = {
     emptyCart:          'ກະຕ່າຂອງທ່ານຫວ່າງເປົ່າ',
     browseParts:        'ເບິ່ງອາໄຫລ່',
     inCart:             'ໃນກະຕ່າ',
+    Continuecheck:      'ຕໍ່ໄປເພື່ອຊຳລະເງິນ →',
 
     // ── Privacy Policy ───────────────────────────────────────────────
     privacyPolicyTitle: 'ນະໂຍບາຍຄວາມເປັນສ່ວນຕົວ',
@@ -934,6 +992,63 @@ export const translations = {
   qtyToAddPlaceholder: 'ຈຳນວນທີ່ຈະເພີ່ມ',
   allStockGood: 'ລະດັບສະຕັອກທັງໝົດດີແລ້ວ!',
   noItemsNeedRestock: 'ບໍ່ມີລາຍການທີ່ຕ້ອງເພີ່ມສະຕັອກໃນຕອນນີ້.',
+
+// SellPartsScreen
+  maxQuantity:          'ຈຳນວນສູງສຸດ',
+  onlyUnitsAvailable:   'ມີພຽງ {n} ໜ່ວຍເທົ່ານັ້ນ.',
+  emptyCartTitle:       'ກະຕ່າຫວ່າງ',
+  addItemsFirst:        'ກະລຸນາເພີ່ມສິນຄ້າກ່ອນ.',
+  stockWarning:         '⚠️ ແຈ້ງເຕືອນສາງ',
+  itemsSoldInvoiceCreated: 'ຂາຍໄດ້ {n} ລາຍການ. ສ້າງໃບຮຽກເກັບເງິນແລ້ວ.',
+  checkoutFailed:       'ຊຳລະເງິນບໍ່ສຳເລັດ. ກະລຸນາລອງໃໝ່.',
+  lowBadge:             '⚠️ ໃກ້ໝົດ',
+  leftInStock:          'ທີ່ເຫຼືອ',        // "{qty} ທີ່ເຫຼືອ"
+  eachUnit:             'ຕໍ່ໜ່ວຍ',         // "{price} ຕໍ່ໜ່ວຍ"
+  continueToCheckout:   'ດຳເນີນການຊຳລະ →',
+  processing:           '⏳ ກຳລັງດຳເນີນການ...',
+  totalLabel:           'ລວມທັງໝົດ',       // reuse t('total')
+
+  // RecordPaymentScreen
+  invoiceNotFound:      'ບໍ່ພົບໃບຮຽກເກັບເງິນ',
+  enterValidAmount:     'ກະລຸນາປ້ອນຈຳນວນເງິນທີ່ຖືກຕ້ອງ',
+  amountExceedsBalance: 'ຈຳນວນເງິນບໍ່ສາມາດເກີນຍອດ {amount}',
+  failedRecordPayment:  'ບັນທຶກການຊຳລະເງິນບໍ່ສຳເລັດ',
+  paymentRecorded:      '✅ ບັນທຶກການຊຳລະເງິນແລ້ວ!',
+  paymentRecordedMsg:   'ໄດ້ຮັບ {amount} ຜ່ານ {method}.\nສະຖານະໃບຮຽກ: {status}',
+  doneBtn:              'ສຳເລັດ',
+
+  // AddCustomerScreen
+  phoneRequired:        'ກະລຸນາປ້ອນເບີໂທລະສັບ',
+  invalidEmailAddress:  'ທີ່ຢູ່ອີເມລບໍ່ຖືກຕ້ອງ',
+  customerUpdated:      'ອັບເດດລູກຄ້າສຳເລັດ!',
+  customerAdded:        'ເພີ່ມລູກຄ້າສຳເລັດ!',
+  viewCustomer:         'ເບິ່ງລູກຄ້າ',
+  failedUpdateCustomer: 'ອັບເດດລູກຄ້າບໍ່ສຳເລັດ',
+  failedAddCustomer:    'ເພີ່ມລູກຄ້າບໍ່ສຳເລັດ',
+
+  // AddAppointmentScreen
+  selectCustomerError:  'ກະລຸນາເລືອກລູກຄ້າ',
+  selectServiceError:   'ກະລຸນາເລືອກປະເພດການບໍລິການ',
+  dateFormatError:      'ກະລຸນາປ້ອນວັນທີ ຮູບແບບ YYYY-MM-DD',
+  timeFormatError:      'ກະລຸນາປ້ອນເວລາ ຮູບແບບ HH:MM',
+  appointmentBooked:    '✅ ນັດໝາຍສຳເລັດ!',
+  appointmentBookedMsg: 'ນັດໝາຍສຳລັບ {name} ວັນທີ {date} ເວລາ {time} ຖືກສ້າງແລ້ວ.',
+  failedCreateAppt:     'ສ້າງນັດໝາຍບໍ່ສຳເລັດ. ກະລຸນາລອງໃໝ່.',
+  noSpecificVehicle:    'ບໍ່ລະບຸລົດ',
+  notesOptionalLabel:   'ໝາຍເຫດ (ທາງເລືອກ)',
+
+  // AddInvoiceScreen
+  itemsNeedDescPrice:   'ທຸກລາຍການຕ້ອງມີຄຳອະທິບາຍ ແລະ ລາຄາ',
+  invoiceCreated:       'ສ້າງໃບຮຽກເກັບເງິນແລ້ວ!',
+  failedCreateInvoice:  'ສ້າງໃບຮຽກເກັບເງິນບໍ່ສຳເລັດ',
+
+  // AddVehicleScreen
+  makeRequired:         'ກະລຸນາປ້ອນຍີ່ຫໍ້ລົດ',
+  modelRequired:        'ກະລຸນາປ້ອນລຸ້ນລົດ',
+  licensePlateRequired: 'ກະລຸນາປ້ອນທະບຽນລົດ',
+  vehicleRegistered:    'ລົງທະບຽນລົດສຳເລັດ!',
+  failedRegisterVehicle:'ລົງທະບຽນລົດບໍ່ສຳເລັດ',
+  
   },
 };
 

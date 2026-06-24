@@ -133,7 +133,7 @@ export default function RestockScreen({ navigation }: any) {
             disabled={restocking === item.id}
           >
             <Text style={styles.restockBtnText}>
-              {restocking === item.id ? '⏳' : `🔄 ${t('restock')}`}
+              {restocking === item.id ? '⏳' : `${t('restock')}`}
             </Text>
           </TouchableOpacity>
           <TouchableOpacity

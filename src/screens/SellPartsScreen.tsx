@@ -313,7 +313,7 @@ export default function SellPartsScreen({ navigation }: any) {
             <Text style={styles.totalValue}>{fmtKip(cartTotal)}</Text>
           </View>
           <TouchableOpacity style={styles.checkoutBtn} onPress={() => setStep('customer')}>
-            <Text style={styles.checkoutBtnText}>Continue to Checkout →</Text>
+            <Text style={styles.checkoutBtnText}>{t('Continuecheck')}</Text>
           </TouchableOpacity>
         </View>
       }

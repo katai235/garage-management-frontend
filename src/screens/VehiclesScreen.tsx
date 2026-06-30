@@ -202,10 +202,8 @@ export default function VehiclesScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.title}>{t('vehicles')}</Text>
-          <Text style={styles.subtitle}>{t('vehiclesSubtitle')}</Text>
-        </View>
+        <Text style={styles.title}>{t('vehicles')}</Text>
+        <Text style={styles.subtitle}>{t('vehiclesSubtitle')}</Text>
         {canCreate && (
           <View style={styles.headerBtns}>
             <TouchableOpacity style={styles.sellBtn} onPress={() => navigation.navigate('SellParts')}>
@@ -265,10 +263,10 @@ export default function VehiclesScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.base, paddingVertical: Spacing.base, gap: 8 },
+  header: { paddingHorizontal: Spacing.base, paddingVertical: Spacing.base, gap: 4 },
   title: { fontSize: Typography['2xl'], fontWeight: '800', color: Colors.textPrimary },
-  subtitle: { fontSize: Typography.sm, color: Colors.textSecondary },
-  headerBtns: { flexDirection: 'row', gap: 6 },
+  subtitle: { fontSize: Typography.sm, color: Colors.textSecondary, marginBottom: 8 },
+  headerBtns: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   sellBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: BorderRadius.md, backgroundColor: Colors.success },
   sellBtnText: { fontSize: 12, fontWeight: '600', color: '#fff' },
   outlineBtn: { paddingHorizontal: 10, paddingVertical: 8, borderRadius: BorderRadius.md, borderWidth: 1.5, borderColor: Colors.primary },

@@ -167,7 +167,7 @@ export default function InvoicesScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerTitleBlock}>
           <Text style={styles.title}>{t('invoices')}</Text>
           <Text style={styles.subtitle}>{t('invoicesSubtitle')}</Text>
         </View>
@@ -236,7 +236,8 @@ export default function InvoicesScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.base, paddingVertical: Spacing.base },
-  title: { fontSize: Typography['2xl'], fontWeight: '800', color: Colors.textPrimary },
+  headerTitleBlock: { flex: 1, marginRight: Spacing.sm },
+  title: { fontSize: Typography.xl, fontWeight: '800', color: Colors.textPrimary },
   subtitle: { fontSize: Typography.sm, color: Colors.textSecondary },
   summaryRow: { flexDirection: 'row', paddingHorizontal: Spacing.sm, gap: 6, marginBottom: Spacing.md },
   summaryCard: { flex: 1, backgroundColor: Colors.surface, borderRadius: BorderRadius.md, padding: 10, alignItems: 'center' },

@@ -218,7 +218,7 @@ export default function StockScreen({ navigation }: any) {
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerTitleBlock}>
           <Text style={styles.title}>{t('stock')}</Text>
           <Text style={styles.subtitle}>{t('stockSubtitle')}</Text>
         </View>
@@ -320,9 +320,10 @@ export default function StockScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container:    { flex: 1, backgroundColor: Colors.background },
   header:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.base, paddingVertical: Spacing.base },
-  title:        { fontSize: Typography['2xl'], fontWeight: '800', color: Colors.textPrimary },
+  headerTitleBlock: { flex: 1, marginRight: Spacing.sm },
+  title:        { fontSize: Typography.xl, fontWeight: '800', color: Colors.textPrimary },
   subtitle:     { fontSize: Typography.sm, color: Colors.textSecondary },
-  headerRight:  { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  headerRight:  { flexDirection: 'row', alignItems: 'center', gap: 8, flexShrink: 0 },
 
   // View toggle
   viewToggle:          { flexDirection: 'row', backgroundColor: Colors.surface, borderRadius: BorderRadius.md, padding: 3, ...Shadow.sm },

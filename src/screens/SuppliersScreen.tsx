@@ -128,22 +128,23 @@ export default function SuppliersScreen({ navigation }: any) {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
-        <View>
+        <View style={styles.headerTitleBlock}>
           <Text style={styles.title}>{t('suppliers')}</Text>
           <Text style={styles.subtitle}>{t('suppliersSubtitle')}</Text>
         </View>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
-            style={styles.reportLinkBtn}
-            onPress={() => navigation.navigate('GoodsReceivedReport')}
-          >
-            <Text style={styles.reportLinkText}>📥 {t('goodsReceivedReport')}</Text>
-          </TouchableOpacity>
-          {can('suppliers.create') && (
-            <Button title={t('add')} onPress={() => navigation.navigate('AddSupplier')} size="sm" />
-          )}
-        </View>
+        {can('suppliers.create') && (
+          <Button title={t('add')} onPress={() => navigation.navigate('AddSupplier')} size="sm" />
+        )}
       </View>
+
+      <TouchableOpacity
+        style={styles.reportBanner}
+        onPress={() => navigation.navigate('GoodsReceivedReport')}
+        activeOpacity={0.85}
+      >
+        <Text style={styles.reportBannerText}>📥 {t('goodsReceivedReport')}</Text>
+        <Text style={styles.reportBannerAction}>{t('view')} →</Text>
+      </TouchableOpacity>
 
       <View style={styles.statsRow}>
         <View style={[styles.statBox, Shadow.sm]}>
@@ -201,7 +202,8 @@ export default function SuppliersScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: Spacing.base, paddingVertical: Spacing.base },
-  title: { fontSize: Typography['2xl'], fontWeight: '800', color: Colors.textPrimary },
+  headerTitleBlock: { flex: 1, marginRight: Spacing.sm },
+  title: { fontSize: Typography.xl, fontWeight: '800', color: Colors.textPrimary },
   subtitle: { fontSize: Typography.sm, color: Colors.textSecondary },
   statsRow: { flexDirection: 'row', paddingHorizontal: Spacing.sm, gap: 8, marginBottom: Spacing.md },
   statBox: { flex: 1, backgroundColor: Colors.surface, borderRadius: BorderRadius.lg, padding: Spacing.md, alignItems: 'center' },
@@ -230,6 +232,7 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: Spacing.md },
   actionBtn: { flex: 1, borderRadius: BorderRadius.md, paddingVertical: 8, alignItems: 'center' },
   actionBtnText: { fontSize: Typography.sm, fontWeight: '700' },
-  reportLinkBtn: { backgroundColor: Colors.infoLight, borderRadius: BorderRadius.md, paddingHorizontal: 10, paddingVertical: 8, justifyContent: 'center' },
-  reportLinkText: { fontSize: Typography.xs, fontWeight: '700', color: Colors.info },
+  reportBanner: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginHorizontal: Spacing.base, marginBottom: Spacing.md, backgroundColor: Colors.infoLight, borderRadius: BorderRadius.md, paddingHorizontal: 14, paddingVertical: 10, borderWidth: 1, borderColor: Colors.info },
+  reportBannerText: { fontSize: Typography.sm, fontWeight: '600', color: Colors.info, flex: 1, marginRight: 8 },
+  reportBannerAction: { fontSize: Typography.sm, fontWeight: '800', color: Colors.info },
 });

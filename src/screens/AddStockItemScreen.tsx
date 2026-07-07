@@ -1,15 +1,16 @@
 import { useLanguageStore } from '../store/languageStore';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, KeyboardAvoidingView,
-  Platform, TouchableOpacity, Alert, Image
+  Platform, TouchableOpacity, Alert, Image, Modal, FlatList, TextInput
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { stockApi } from '../services/api';
+import { stockApi, supplierApi } from '../services/api';
 import { Input, Button } from '../components/UI';
 import { Colors, Typography, Spacing, BorderRadius, Shadow } from '../utils/theme';
+import { Supplier } from '../types';
 
 const CATEGORIES = ['parts','oils','filters','tires','tools','supplies','other'];
 
@@ -26,7 +27,7 @@ export default function AddStockItemScreen({ navigation, route }: any) {
     name:         existingItem?.name         || '',
     sku:          existingItem?.sku          || '',
     category:     existingItem?.category     || 'parts',
-    supplier:     existingItem?.supplier     || '',
+    supplierId:   existingItem?.supplierId    || null as string | null,
     quantity:     isEditing ? String(existingItem?.quantity ?? '') : '',
     reorderLevel: String(existingItem?.reorderLevel ?? existingItem?.reorder_level ?? '10'),
     costPrice:    String(existingItem?.costPrice ?? existingItem?.cost_price ?? ''),
@@ -38,6 +39,29 @@ export default function AddStockItemScreen({ navigation, route }: any) {
   const [imageUri, setImageUri]   = useState<string | null>(existingItem?.imageUrl || existingItem?.image_url || null);
   const [errors, setErrors]       = useState<Record<string, string>>({});
   const [loading, setLoading]     = useState(false);
+
+  // ── Supplier picker ──────────────────────────────────────────────
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [selectedSupplierName, setSelectedSupplierName] = useState(existingItem?.supplierName || '');
+  const [supplierModalVisible, setSupplierModalVisible] = useState(false);
+  const [supplierSearch, setSupplierSearch] = useState('');
+
+  useEffect(() => {
+    supplierApi.getAll({ isActive: 'true' })
+      .then(res => setSuppliers(res.data.suppliers || []))
+      .catch(err => console.error('Fetch suppliers error:', err));
+  }, []);
+
+  const filteredSuppliers = suppliers.filter(s =>
+    s.companyName.toLowerCase().includes(supplierSearch.toLowerCase())
+  );
+
+  const selectSupplier = (supplier: Supplier | null) => {
+    setForm(prev => ({ ...prev, supplierId: supplier?.id || null }));
+    setSelectedSupplierName(supplier?.companyName || '');
+    setSupplierModalVisible(false);
+    setSupplierSearch('');
+  };
 
   const set = (key: string) => (val: string) =>
     setForm(prev => ({ ...prev, [key]: val }));
@@ -153,7 +177,7 @@ export default function AddStockItemScreen({ navigation, route }: any) {
             name:         form.name,
             sku:          form.sku.toUpperCase(),
             category:     form.category,
-            supplier:     form.supplier,
+            supplierId:   form.supplierId || '',
             reorderLevel: String(parseInt(form.reorderLevel) || 10),
             costPrice:    String(parseFloat(form.costPrice)),
             sellingPrice: String(parseFloat(form.sellingPrice)),
@@ -173,7 +197,7 @@ export default function AddStockItemScreen({ navigation, route }: any) {
           name:         form.name,
           sku:          form.sku.toUpperCase(),
           category:     form.category,
-          supplier:     form.supplier,
+          supplierId:   form.supplierId || null,
           reorderLevel: parseInt(form.reorderLevel) || 10,
           costPrice:    parseFloat(form.costPrice),
           sellingPrice: parseFloat(form.sellingPrice),
@@ -245,7 +269,19 @@ export default function AddStockItemScreen({ navigation, route }: any) {
             <Text style={styles.sectionTitle}>{t('ItemDetails')}</Text>
             <Input label={`${t('itemName')} *`} placeholder="e.g. Synthetic Motor Oil 5W-30" value={form.name} onChangeText={set('name')} error={errors.name} />
             <Input label={`${t('sku')} *`} placeholder="e.g. OIL-5W30-001" value={form.sku} onChangeText={set('sku')} error={errors.sku} autoCapitalize="characters" />
-            <Input label={t('supplier')} placeholder="e.g. Mobil 1" value={form.supplier} onChangeText={set('supplier')} />
+
+            <Text style={styles.inputLabel}>{t('supplier')}</Text>
+            <TouchableOpacity
+              style={styles.supplierField}
+              onPress={() => setSupplierModalVisible(true)}
+              activeOpacity={0.7}
+            >
+              <Text style={selectedSupplierName ? styles.supplierFieldText : styles.supplierFieldPlaceholder}>
+                {selectedSupplierName || t('selectSupplier')}
+              </Text>
+              <Text style={styles.supplierFieldChevron}>▾</Text>
+            </TouchableOpacity>
+
             <Input label={t('location')} placeholder="e.g. Shelf A-3" value={form.location} onChangeText={set('location')} />
           </View>
 
@@ -305,6 +341,51 @@ export default function AddStockItemScreen({ navigation, route }: any) {
           />
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal
+        visible={supplierModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setSupplierModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalSheet}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t('selectSupplier')}</Text>
+              <TouchableOpacity onPress={() => setSupplierModalVisible(false)}>
+                <Text style={styles.modalClose}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            <TextInput
+              style={styles.modalSearch}
+              placeholder={t('search')}
+              placeholderTextColor={Colors.textTertiary}
+              value={supplierSearch}
+              onChangeText={setSupplierSearch}
+            />
+
+            <TouchableOpacity style={styles.modalNoneRow} onPress={() => selectSupplier(null)}>
+              <Text style={styles.modalNoneText}>{t('noSupplier')}</Text>
+            </TouchableOpacity>
+
+            <FlatList
+              data={filteredSuppliers}
+              keyExtractor={item => item.id}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.modalRow} onPress={() => selectSupplier(item)}>
+                  <Text style={styles.modalRowText}>{item.companyName}</Text>
+                  {item.contactPerson ? <Text style={styles.modalRowSub}>{item.contactPerson}</Text> : null}
+                </TouchableOpacity>
+              )}
+              ListEmptyComponent={
+                <Text style={styles.modalEmptyText}>{t('noSuppliers')}</Text>
+              }
+              style={{ maxHeight: 320 }}
+            />
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -340,4 +421,30 @@ const styles = StyleSheet.create({
   infoBox:  { backgroundColor: Colors.infoLight, borderRadius: BorderRadius.md, padding: Spacing.md, marginBottom: Spacing.md, gap: 4 },
   infoText: { fontSize: Typography.sm, color: Colors.info },
   infoValue:{ fontWeight: '700' },
+
+  // Supplier picker field
+  inputLabel: { fontSize: Typography.sm, fontWeight: '700', color: Colors.textSecondary, marginBottom: 6 },
+  supplierField: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: Colors.surfaceSecondary, borderRadius: BorderRadius.md,
+    borderWidth: 1.5, borderColor: Colors.border, paddingHorizontal: Spacing.md,
+    paddingVertical: 13, marginBottom: Spacing.md,
+  },
+  supplierFieldText: { fontSize: Typography.base, color: Colors.textPrimary },
+  supplierFieldPlaceholder: { fontSize: Typography.base, color: Colors.textTertiary },
+  supplierFieldChevron: { fontSize: Typography.base, color: Colors.textTertiary },
+
+  // Supplier picker modal
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalSheet: { backgroundColor: Colors.surface, borderTopLeftRadius: BorderRadius.xl, borderTopRightRadius: BorderRadius.xl, padding: Spacing.base, maxHeight: '75%' },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
+  modalTitle: { fontSize: Typography.lg, fontWeight: '800', color: Colors.textPrimary },
+  modalClose: { fontSize: Typography.lg, color: Colors.textSecondary, padding: 4 },
+  modalSearch: { backgroundColor: Colors.surfaceSecondary, borderRadius: BorderRadius.md, paddingHorizontal: Spacing.md, paddingVertical: 10, fontSize: Typography.base, color: Colors.textPrimary, marginBottom: Spacing.sm },
+  modalNoneRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  modalNoneText: { fontSize: Typography.base, color: Colors.textSecondary, fontStyle: 'italic' },
+  modalRow: { paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  modalRowText: { fontSize: Typography.base, fontWeight: '600', color: Colors.textPrimary },
+  modalRowSub: { fontSize: Typography.sm, color: Colors.textSecondary, marginTop: 2 },
+  modalEmptyText: { textAlign: 'center', color: Colors.textTertiary, paddingVertical: Spacing.lg },
 });

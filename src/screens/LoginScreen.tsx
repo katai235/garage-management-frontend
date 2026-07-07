@@ -19,8 +19,8 @@ export default function LoginScreen({ navigation }: any) {
   const { login, isLoading, error, clearError } = useAuthStore();
   const { t } = useLanguageStore();
 
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(40)).current;
+  const fadeAnim = React.useRef(new Animated.Value(Platform.OS === 'web' ? 1 : 0)).current;
+  const slideAnim = React.useRef(new Animated.Value(Platform.OS === 'web' ? 0 : 40)).current;
 
   useEffect(() => {
     Animated.parallel([
@@ -47,6 +47,72 @@ export default function LoginScreen({ navigation }: any) {
       if (err.response?.status === 423) Alert.alert('Account Locked', err.response.data.error);
     }
   };
+
+  if (Platform.OS === 'web') {
+    return (
+      <View style={styles.webRoot}>
+        <View style={styles.langToggleWrap}>
+          <LanguageToggle />
+        </View>
+        <View style={styles.webLeft}>
+          <View style={styles.logoWrap}>
+            <Text style={styles.logoIcon}>🔧</Text>
+          </View>
+          <Text style={styles.brandTop}>SAM SAEN THAI</Text>
+          <Text style={styles.brandBottom}>KT Lo,. Co</Text>
+          <Text style={styles.brandSub}>Garage Management System</Text>
+        </View>
+        <View style={styles.webRight}>
+          <View style={[styles.card, Shadow.lg]}>
+            <Text style={styles.cardTitle}>{t('loginTitle')}</Text>
+            <Text style={styles.cardSub}>{t('loginSubtitle')}</Text>
+            {error && (
+              <View style={styles.errorBanner}>
+                <Text style={styles.errorIcon}>⚠️</Text>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+            <Input
+              label={t('username')}
+              placeholder={t('username')}
+              value={username}
+              onChangeText={t => { setUsername(t); clearError(); }}
+              autoCapitalize="none"
+              autoCorrect={false}
+              error={usernameError}
+              icon="👤"
+              returnKeyType="next"
+            />
+            <View>
+              <Input
+                label={t('password')}
+                placeholder={t('password')}
+                value={password}
+                onChangeText={t => { setPassword(t); clearError(); }}
+                secureTextEntry={!showPassword}
+                error={passwordError}
+                icon="🔒"
+                returnKeyType="done"
+                onSubmitEditing={handleLogin}
+              />
+              <TouchableOpacity style={styles.showPwdBtn} onPress={() => setShowPassword(!showPassword)}>
+                <Text style={styles.showPwdText}>{showPassword ? 'Hide' : 'Show'}</Text>
+              </TouchableOpacity>
+            </View>
+            <Button title={t('loginBtn')} onPress={handleLogin} loading={isLoading} style={styles.loginBtn} />
+            <TouchableOpacity style={styles.forgotRow} onPress={() => navigation.navigate('ForgotPassword')}>
+              <Text style={styles.forgotText}>{t('forgotPassword')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.registerRow} onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.registerText}>{t('dontHaveAccount')}</Text>
+              <Text style={styles.registerLink}>{t('register')}</Text>
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.footer}>© 2026 Sam Saen Thai KT Lo,. Co</Text>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.root}>
@@ -131,9 +197,15 @@ export default function LoginScreen({ navigation }: any) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.primary },
+  webRoot: { flex: 1, flexDirection: 'row', backgroundColor: Colors.primary },
+  webLeft: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 40 },
+  webRight: { flex: 1, alignItems: 'center', justifyContent: 'flex-start', padding: 40, paddingTop: 60, backgroundColor: Colors.background },
+  webCard: { width: '100%', maxWidth: 420 },
   topBand: {
-    paddingTop: 60, paddingBottom: 40, alignItems: 'center',
-    overflow: 'hidden', position: 'relative',
+  paddingTop: Platform.OS === 'web' ? 20 : 60, 
+  paddingBottom: Platform.OS === 'web' ? 10 : 40, 
+  alignItems: 'center',
+  overflow: 'hidden', position: 'relative',
   },
   langToggleWrap: {
     position: 'absolute', top: 56, right: 16, zIndex: 10,

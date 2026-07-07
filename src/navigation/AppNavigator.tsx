@@ -18,11 +18,14 @@ import DashboardScreen from '../screens/DashboardScreen';
 import VehiclesScreen from '../screens/VehiclesScreen';
 import AppointmentsScreen from '../screens/AppointmentsScreen';
 import CustomersScreen from '../screens/CustomersScreen';
+import SuppliersScreen from '../screens/SuppliersScreen';
 import StockScreen from '../screens/StockScreen';
 import InvoicesScreen from '../screens/InvoicesScreen';
 import ActivityHistoryScreen from '../screens/ActivityHistoryScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import AddCustomerScreen from '../screens/AddCustomerScreen';
+import AddEditSupplierScreen from '../screens/AddEditSupplierScreen';
+import GoodsReceivedReportScreen from '../screens/GoodsReceivedReportScreen';
 import AddStockItemScreen from '../screens/AddStockItemScreen';
 import AddServiceScreen from '../screens/AddServiceScreen';
 import AddAppointmentScreen from '../screens/AddAppointmentScreen';
@@ -57,6 +60,7 @@ const SIDEBAR_ITEMS = [
   { icon: '📅', label: 'Schedule',    screen: 'Appointments' },
   { icon: '👥', label: 'Customers',   screen: 'Customers' },
   { icon: '📦', label: 'Stock',       screen: 'Stock' },
+  { icon: '🚚', label: 'Suppliers',   screen: 'Suppliers' },
   { icon: '🧾', label: 'Billing',     screen: 'Invoices' },
   { icon: '📋', label: 'Activity',    screen: 'ActivityHistory' },
 ];
@@ -338,11 +342,15 @@ function MainWithScreens({ navigation }: any) {
       <Stack.Screen name="Vehicles" component={VehiclesScreen} />
       <Stack.Screen name="Appointments" component={AppointmentsScreen} />
       <Stack.Screen name="Customers" component={CustomersScreen} />
+      <Stack.Screen name="Suppliers" component={SuppliersScreen} />
+      <Stack.Screen name="GoodsReceivedReport" component={GoodsReceivedReportScreen} />
       <Stack.Screen name="Stock" component={StockScreen} />
       <Stack.Screen name="Invoices" component={InvoicesScreen} />
       <Stack.Screen name="ActivityHistory" component={ActivityHistoryScreen} />
       <Stack.Screen name="AddCustomer" component={AddCustomerScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="EditCustomer" component={AddCustomerScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="AddSupplier" component={AddEditSupplierScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="EditSupplier" component={AddEditSupplierScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="AddVehicle" component={AddVehicleScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="AddService" component={AddServiceScreen} options={{ presentation: 'modal' }} />
       <Stack.Screen name="AddStockItem" component={AddStockItemScreen} options={{ presentation: 'modal' }} />

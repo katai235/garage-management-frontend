@@ -120,6 +120,14 @@ export const customerApi = {
   delete: (id: string) => api.delete(`/customers/${id}`),
 };
 
+export const supplierApi = {
+  getAll: (params?: any) => api.get('/suppliers', { params }),
+  getOne: (id: string) => api.get(`/suppliers/${id}`),
+  create: (data: any) => api.post('/suppliers', data),
+  update: (id: string, data: any) => api.put(`/suppliers/${id}`, data),
+  delete: (id: string) => api.delete(`/suppliers/${id}`),
+};
+
 export const vehicleApi = {
   getAll: (params?: any) => api.get('/vehicles', { params }),
   create: (data: any) => api.post('/vehicles', data),
@@ -146,6 +154,7 @@ export const stockApi = {
   }),
   delete:          (id: string)                => api.delete(`/stock/${id}`),
   adjust:          (id: string, data: any)     => api.patch(`/stock/${id}/adjust`, data),
+  getGoodsReceived: (params?: any)             => api.get('/stock/goods-received', { params }),
 };
 
 export const invoiceApi = {

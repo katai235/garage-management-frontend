@@ -114,6 +114,20 @@ export interface StockItem {
   notes?: string;
 }
 
+export interface Supplier {
+  id: string;
+  companyName: string;
+  contactPerson?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  notes?: string;
+  isActive: boolean;
+  stockItemCount?: number;
+  createdAt: string;
+  updatedAt?: string;
+}
+
 export interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -137,7 +151,7 @@ export interface Invoice {
 
 export interface ActivityLog {
   id: string;
-  activityType: 'repair' | 'stock' | 'customer' | 'invoice' | 'appointment' | 'user' | 'system';
+  activityType: 'repair' | 'stock' | 'customer' | 'invoice' | 'appointment' | 'user' | 'system' | 'supplier';
   title: string;
   description?: string;
   details?: Record<string, any>;
@@ -168,6 +182,10 @@ export type RootStackParamList = {
   AddCustomer: undefined;
   Stock: undefined;
   AddStockItem: undefined;
+  Suppliers: undefined;
+  AddSupplier: undefined;
+  EditSupplier: { supplier: Supplier };
+  GoodsReceivedReport: undefined;
   Invoices: undefined;
   AddInvoice: { customerId?: string; serviceRecordId?: string };
   ActivityHistory: undefined;

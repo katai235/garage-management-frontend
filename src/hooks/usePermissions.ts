@@ -5,6 +5,7 @@ export type Permission =
   | 'vehicles.create' | 'vehicles.edit' | 'vehicles.delete' | 'vehicles.view'
   | 'services.create' | 'services.edit' | 'services.delete' | 'services.view' | 'services.updateStatus'
   | 'stock.create' | 'stock.edit' | 'stock.delete' | 'stock.view' | 'stock.adjust'
+  | 'suppliers.create' | 'suppliers.edit' | 'suppliers.delete' | 'suppliers.view'
   | 'invoices.create' | 'invoices.edit' | 'invoices.delete' | 'invoices.view' | 'invoices.payment'
   | 'appointments.create' | 'appointments.edit' | 'appointments.delete' | 'appointments.view'
   | 'users.create' | 'users.edit' | 'users.delete' | 'users.view'
@@ -16,6 +17,7 @@ const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'vehicles.create', 'vehicles.edit', 'vehicles.delete', 'vehicles.view',
     'services.create', 'services.edit', 'services.delete', 'services.view', 'services.updateStatus',
     'stock.create', 'stock.edit', 'stock.delete', 'stock.view', 'stock.adjust',
+    'suppliers.create', 'suppliers.edit', 'suppliers.delete', 'suppliers.view',
     'invoices.create', 'invoices.edit', 'invoices.delete', 'invoices.view', 'invoices.payment',
     'appointments.create', 'appointments.edit', 'appointments.delete', 'appointments.view',
     'users.create', 'users.edit', 'users.delete', 'users.view',
@@ -26,6 +28,7 @@ const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'vehicles.create', 'vehicles.edit', 'vehicles.delete', 'vehicles.view',
     'services.create', 'services.edit', 'services.delete', 'services.view', 'services.updateStatus',
     'stock.create', 'stock.edit', 'stock.delete', 'stock.view', 'stock.adjust',
+    'suppliers.create', 'suppliers.edit', 'suppliers.delete', 'suppliers.view',
     'invoices.create', 'invoices.edit', 'invoices.delete', 'invoices.view', 'invoices.payment',
     'appointments.create', 'appointments.edit', 'appointments.delete', 'appointments.view',
     'users.create', 'users.edit', 'users.view',
@@ -36,6 +39,7 @@ const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     'vehicles.create', 'vehicles.edit', 'vehicles.view',
     'services.create', 'services.view', 'services.updateStatus',
     'stock.create', 'stock.view', 'stock.adjust',
+    'suppliers.view',
     'invoices.create', 'invoices.view', 'invoices.payment',
     'appointments.create', 'appointments.edit', 'appointments.view',
     'activity.view',

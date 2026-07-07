@@ -13,35 +13,15 @@
   <link rel="apple-touch-icon" href="/assets/icon.png" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/assets/favicon.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
   <title>Sam Saen Thai KT Lo,. Co - GMS</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body, #root { height: 100%; width: 100%; }
-    body { background-color: #EEF2FF; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-    #splash {
-      position: fixed; inset: 0; background: #2563EB;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 9999; transition: opacity 0.5s ease;
-    }
-    #splash.hidden { opacity: 0; pointer-events: none; }
-    #splash-icon { font-size: 64px; margin-bottom: 16px; }
-    #splash-title { color: white; font-size: 22px; font-weight: 800; letter-spacing: 1px; }
-    #splash-sub { color: rgba(255,255,255,0.7); font-size: 13px; margin-top: 6px; }
-    #splash-loader {
-      margin-top: 40px; width: 40px; height: 40px; border-radius: 50%;
-      border: 3px solid rgba(255,255,255,0.3); border-top-color: white;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    body { background-color: #1e3a5f; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
   </style>
 </head>
 <body>
-  <div id="splash">
-    <div id="splash-icon">🔧</div>
-    <div id="splash-title">SAM SAEN THAI KT Lo,. Co</div>
-    <div id="splash-sub">Garage Management System</div>
-    <div id="splash-loader"></div>
-  </div>
   <div id="root"></div>
   <script>
     if ('serviceWorker' in navigator) {
@@ -49,28 +29,6 @@
         navigator.serviceWorker.register('/sw.js').catch(() => {});
       });
     }
-    // Hide splash after 2 seconds regardless
-    function hideSplash() {
-      const splash = document.getElementById('splash');
-      if (splash) {
-        splash.classList.add('hidden');
-        setTimeout(() => { if (splash) splash.remove(); }, 500);
-      }
-    }
-    // Hide after 2s no matter what
-    setTimeout(hideSplash, 2000);
-    // Also hide when root has content
-    const observer = new MutationObserver(() => {
-      const root = document.getElementById('root');
-      if (root && root.children.length > 0) {
-        hideSplash();
-        observer.disconnect();
-      }
-    });
-    document.addEventListener('DOMContentLoaded', () => {
-      const root = document.getElementById('root');
-      if (root) observer.observe(root, { childList: true, subtree: true });
-    });
   </script>
 </body>
 </html>

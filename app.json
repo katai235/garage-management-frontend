@@ -38,7 +38,7 @@
     "web": {
       "favicon": "./assets/favicon.png",
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "name": "Sam Saen Thai KT Lo,. Co",
       "shortName": "GMS",
       "description": "Garage Management System by Sam Saen Thai KT Lo,. Co",
@@ -48,7 +48,6 @@
     "plugins": [
       "expo-secure-store",
       "expo-local-authentication",
-      "expo-router",
       "expo-font"
     ],
     "extra": {
